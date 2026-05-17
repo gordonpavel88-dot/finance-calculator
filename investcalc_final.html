@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Инвестиционный калькулятор: ETF, недвижимость, флиппинг, пенсия. Pavel Gordon.">
+<meta name="theme-color" content="#181c27">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>InvestCalc € — Калькулятор инвестиций | Pavel Gordon</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#181c27;--bg3:#1e2235;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --text:#e8eaf0;--text2:#9aa0b4;--text3:#5a6075;
+  --green:#22c992;--green-bg:rgba(34,201,146,0.12);
+  --blue:#4e9eff;--blue-bg:rgba(78,158,255,0.12);
+  --amber:#f5a623;--amber-bg:rgba(245,166,35,0.12);
+  --red:#f05e6a;--red-bg:rgba(240,94,106,0.12);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.12);
+  --coral:#ff7b54;--coral-bg:rgba(255,123,84,0.12);
+  --radius:10px;--radius-lg:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px}
+body{display:flex;flex-direction:column;min-height:100vh}
+.header{padding:16px 24px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
+.logo{font-size:16px;font-weight:600;letter-spacing:-.3px}.logo span{color:var(--green)}
+.hbadge{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid var(--green);color:var(--green);background:var(--green-bg)}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:0.5px solid var(--border);padding:16px 12px;overflow-y:auto}
+.main{flex:1;overflow-y:auto;padding:24px}
+.nav-section{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:0 10px;margin:16px 0 6px}
+.nav-section:first-child{margin-top:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;transition:all .15s;margin-bottom:2px;border:none;background:transparent;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--blue-bg);color:var(--blue)}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sec{display:none}.sec.show{display:block}
+.stitle{font-size:20px;font-weight:600;margin-bottom:4px;letter-spacing:-.3px}
+.ssub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px}
+.ct{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;color:var(--text2)}
+.ct.g{color:var(--green)}.ct.b{color:var(--blue)}.ct.a{color:var(--amber)}.ct.r{color:var(--red)}.ct.p{color:var(--purple)}.ct.co{color:var(--coral)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ctrl{display:flex;flex-direction:column;gap:5px}
+.ctrl label{font-size:11px;color:var(--text2)}
+.ctrl input[type=range]{width:100%;accent-color:var(--blue);height:4px;cursor:pointer}
+.vd{font-size:14px;font-weight:600;color:var(--text)}
+.met{background:var(--bg3);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.met.pos{background:var(--green-bg);border-color:rgba(34,201,146,.2)}
+.met.neg{background:var(--red-bg);border-color:rgba(240,94,106,.2)}
+.met.neu{background:var(--blue-bg);border-color:rgba(78,158,255,.2)}
+.ml{font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.mv{font-size:16px;font-weight:700}
+.mv.g{color:var(--green)}.mv.b{color:var(--blue)}.mv.a{color:var(--amber)}.mv.r{color:var(--red)}.mv.p{color:var(--purple)}.mv.c{color:var(--coral)}
+.hr{border:none;border-top:0.5px solid var(--border);margin:16px 0}
+.ib{background:var(--bg3);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:14px}
+.ib b{color:var(--text)}
+.cw{position:relative;width:100%;height:260px;margin-bottom:14px}
+.cw.tall{height:310px}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.ls{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.trow{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius);border:0.5px solid var(--border)}
+.trow label{font-size:13px;font-weight:500;cursor:pointer;flex:1}
+.trow span{font-size:12px;color:var(--text2)}
+input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--blue)}
+.rtg{display:flex;gap:6px;margin-bottom:14px}
+.rb{flex:1;padding:8px;border-radius:var(--radius);border:0.5px solid var(--border);cursor:pointer;font-size:12px;text-align:center;background:transparent;color:var(--text2);transition:all .15s}
+.rb:hover{border-color:var(--border2);color:var(--text)}
+.rb.active{background:var(--blue-bg);color:var(--blue);border-color:rgba(78,158,255,.35)}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.ro{padding:8px 10px;border-radius:var(--radius);border:0.5px solid var(--border);cursor:pointer;font-size:12px;text-align:center;background:transparent;color:var(--text2);transition:all .15s}
+.ro:hover{border-color:var(--border2);color:var(--text)}
+.ro.active{background:var(--green-bg);color:var(--green);border-color:rgba(34,201,146,.35);font-weight:600}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.fc{border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;cursor:pointer;transition:all .15s;position:relative}
+.fc:hover{border-color:var(--border2)}
+.fc.active{border:1.5px solid var(--blue);background:var(--blue-bg)}
+.fn{font-size:13px;font-weight:600;margin-bottom:4px;padding-right:24px}
+.ftag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;margin-bottom:6px;font-weight:500}
+.eq{background:var(--green-bg);color:var(--green)}.bd{background:var(--blue-bg);color:var(--blue)}
+.lc{background:var(--amber-bg);color:var(--amber)}.tg{background:var(--purple-bg);color:var(--purple)}
+.fd{font-size:11px;color:var(--text2);line-height:1.4}
+.fr{font-size:15px;font-weight:700;margin-top:6px}
+.cfbar{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.cfl{width:180px;color:var(--text2);flex-shrink:0;font-size:11px}
+.cft{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.cff{height:100%;border-radius:3px}
+.cfv{width:100px;text-align:right;font-weight:600;flex-shrink:0;font-size:12px}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:12px}
+.srow:last-child{border-bottom:none}
+.srow.tot{border-top:1px solid var(--border2);padding-top:10px;margin-top:4px}
+.sk{color:var(--text2)}.sv{font-weight:600}
+.sv.pos{color:var(--green)}.sv.neg{color:var(--red)}.sv.am{color:var(--amber)}
+.cc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.ccard{border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:all .15s}
+.ccard:hover{border-color:var(--border2)}
+.ccard.best{border:1.5px solid var(--green)}
+.cct{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ccd{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.ccn{font-size:13px;font-weight:600}
+.ccv{font-size:18px;font-weight:700;margin-bottom:3px}
+.ccs{font-size:11px;color:var(--text3)}
+.ytable{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+.ytable th{text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;padding:6px 10px;border-bottom:0.5px solid var(--border)}
+.ytable td{padding:7px 10px;border-bottom:0.5px solid var(--border)}
+.ytable tr:last-child td{font-weight:600;border-bottom:none}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.badge.pos{background:var(--green-bg);color:var(--green)}.badge.neg{background:var(--red-bg);color:var(--red)}
+.dis{opacity:.35;pointer-events:none}
+
+/* ── HELP BTN ── */
+.hbtn{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:0.5px solid var(--border2);background:var(--bg3);color:var(--text3);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .15s;z-index:2}
+.hbtn:hover{background:var(--blue-bg);color:var(--blue);border-color:var(--blue)}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.overlay.show{display:flex}
+.modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:24px;max-width:540px;width:100%;max-height:85vh;overflow-y:auto;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--bg3);border:0.5px solid var(--border);border-radius:50%;width:28px;height:28px;cursor:pointer;color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-x:hover{color:var(--text);background:var(--border2)}
+.mtitle{font-size:17px;font-weight:700;margin-bottom:3px;padding-right:36px}
+.msub{font-size:12px;color:var(--text3);margin-bottom:14px}
+.msec{margin-bottom:14px}
+.msec h4{font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.msec p{font-size:13px;color:var(--text2);line-height:1.75}
+.mdiv{border:none;border-top:0.5px solid var(--border);margin:14px 0}
+.mpills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.mpill{font-size:11px;padding:4px 12px;border-radius:8px;background:var(--bg3);color:var(--text2);border:0.5px solid var(--border)}
+.mpill.pos{background:var(--green-bg);color:var(--green);border-color:rgba(34,201,146,.2)}
+.mpill.neg{background:var(--red-bg);color:var(--red);border-color:rgba(240,94,106,.2)}
+.mpill.neu{background:var(--blue-bg);color:var(--blue);border-color:rgba(78,158,255,.2)}
+.verdict{background:var(--bg3);border-left:3px solid var(--green);border-radius:0 var(--radius) var(--radius) 0;padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.7}
+.verdict b{color:var(--text)}
+
+/* ── AUDIT collapse ── */
+.audit-tog{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text3);margin-bottom:8px;user-select:none;padding:6px 0}
+.audit-tog:hover{color:var(--text2)}
+.atri{font-size:10px;transition:transform .2s;display:inline-block}
+.atri.open{transform:rotate(90deg)}
+.audit-wrap{display:none}.audit-wrap.show{display:block}
+.arow{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:12px;gap:10px}
+.arow:last-child{border-bottom:none}
+.aok{color:var(--green);font-weight:600;flex-shrink:0}
+.aerr{color:var(--red);font-weight:600;flex-shrink:0}
+.adet{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── Compare note box ── */
+.note-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-top:4px}
+.note-row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.note-row:last-child{border-bottom:none}
+.note-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.note-body{flex:1}
+.note-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.note-desc{font-size:12px;color:var(--text2);line-height:1.6}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ── DISCLAIMER ── */
+.disclaimer{background:var(--bg3);border-top:0.5px solid var(--border);padding:12px 24px;font-size:11px;color:var(--text3);line-height:1.6;text-align:center}
+.disclaimer b{color:var(--text2)}
+
+/* ── MOBILE NAV BAR ── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--bg2);border-top:0.5px solid var(--border);padding:0;padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -4px 20px rgba(0,0,0,.3)}
+.mob-nav-inner{display:flex;align-items:stretch}
+.mnav{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 1px 7px;gap:2px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-size:8.5px;font-weight:500;letter-spacing:.02em;transition:all .15s;min-height:50px;-webkit-tap-highlight-color:transparent;position:relative}
+.mnav:active{opacity:.7}
+.mnav.active{color:var(--blue)}
+.mnav.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--blue);border-radius:1px 1px 0 0}
+.mnav svg{width:20px;height:20px;flex-shrink:0;transition:transform .15s}
+.mnav.active svg{transform:translateY(-1px)}
+
+/* ═══════════════════════════════════════
+   MOBILE RESPONSIVE — полная адаптация
+   ═══════════════════════════════════════ */
+@media(max-width:700px){
+  body{padding-bottom:62px}
+  .sidebar{display:none}
+  .mob-nav{display:block}
+  .layout{overflow:visible;flex-direction:column}
+  .main{padding:12px 12px 8px;overflow-y:visible}
+
+  /* ── Grids ── */
+  .g2{grid-template-columns:1fr 1fr;gap:10px}
+  .g3{grid-template-columns:1fr 1fr;gap:8px}
+  .g4{grid-template-columns:1fr 1fr;gap:7px}
+  .cc{grid-template-columns:1fr 1fr;gap:8px}
+  .fg{grid-template-columns:1fr 1fr;gap:7px}
+  .rg{grid-template-columns:1fr 1fr;gap:6px}
+  #risk-grid{grid-template-columns:1fr 1fr 1fr !important;gap:6px}
+  #bond-grid{grid-template-columns:1fr 1fr !important}
+
+  /* ── Header ── */
+  .header{padding:10px 14px}
+  .logo{font-size:14px}
+  .hbadge{font-size:10px;padding:3px 8px;display:none}
+
+  /* ── Typography ── */
+  .stitle{font-size:16px;margin-bottom:3px}
+  .ssub{font-size:11px;margin-bottom:14px}
+  .ct{font-size:10px;margin-bottom:10px}
+
+  /* ── Cards ── */
+  .card{padding:12px 11px;margin-bottom:10px;border-radius:var(--radius)}
+
+  /* ── Controls ── */
+  .ctrl label{font-size:10px}
+  .vd{font-size:13px}
+
+  /* ── Metrics ── */
+  .met{padding:9px 10px}
+  .ml{font-size:9px;letter-spacing:.03em}
+  .mv{font-size:13px}
+
+  /* ── Charts ── */
+  .cw{height:190px;margin-bottom:10px}
+  .cw.tall{height:220px}
+
+  /* ── Legend ── */
+  .leg{gap:7px;margin-bottom:10px}
+  .li{font-size:10px;gap:4px}
+  .ls{width:8px;height:8px}
+
+  /* ── Cashflow bars ── */
+  .cfbar{gap:5px;margin-bottom:5px}
+  .cfl{width:100px;font-size:10px}
+  .cft{height:5px}
+  .cfv{width:68px;font-size:11px}
+
+  /* ── Toggle rows ── */
+  .trow{padding:8px 11px;margin-bottom:10px}
+  .trow label{font-size:12px}
+
+  /* ── Mode buttons ── */
+  .rb{padding:6px 3px;font-size:11px}
+
+  /* ── Reinvest opts ── */
+  .ro{padding:7px 8px;font-size:11px}
+
+  /* ── Fund cards ── */
+  .fn{font-size:12px}
+  .fd{font-size:10px}
+  .fr{font-size:13px;margin-top:4px}
+  .ftag{font-size:9px;padding:1px 6px;margin-bottom:4px}
+
+  /* ── Compare cards ── */
+  .ccard{padding:11px 10px}
+  .ccn{font-size:12px}
+  .ccv{font-size:14px;margin-bottom:2px}
+  .ccs{font-size:10px}
+  .ccd{width:8px;height:8px}
+
+  /* ── Risk cards ── */
+  .risk-card{padding:9px 6px}
+  .risk-icon{font-size:18px;margin-bottom:3px}
+  .risk-name{font-size:11px;margin-bottom:2px}
+  .risk-alloc{font-size:9px;margin-bottom:3px}
+  .risk-ret{font-size:12px}
+
+  /* ── Bond cards ── */
+  .bond-card{padding:10px 10px}
+  .bond-name{font-size:12px}
+  .bond-desc{font-size:10px;margin-bottom:4px}
+  .bond-rate{font-size:13px}
+
+  /* ── Deal srow ── */
+  .srow{padding:5px 0;font-size:11px}
+  .sv{font-size:11px}
+
+  /* ── Year table ── */
+  .ytable-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px}
+  .ytable{min-width:380px;font-size:11px}
+  .ytable th{padding:5px 8px;font-size:9px}
+  .ytable td{padding:5px 8px}
+  .badge{font-size:9px;padding:2px 6px}
+
+  /* ── Modal bottom sheet ── */
+  .overlay{align-items:flex-end;padding:0}
+  .modal{max-height:90vh;padding:18px 14px;border-radius:16px 16px 0 0;
+         margin:0;align-self:flex-end;width:100%}
+  .modal-x{top:12px;right:12px}
+  .mtitle{font-size:15px;padding-right:32px}
+  .msub{font-size:11px}
+  .msec h4{font-size:10px}
+  .msec p{font-size:12px;line-height:1.65}
+  .mpill{font-size:10px;padding:3px 9px}
+  .verdict{font-size:12px;padding:10px 12px}
+
+  /* ── Info box ── */
+  .ib{font-size:11px;padding:10px 11px;margin-bottom:10px}
+
+  /* ── Audit toggle ── */
+  .audit-tog{font-size:11px}
+
+  /* ── Note box ── */
+  .note-row{gap:8px;padding:7px 0}
+  .note-name{font-size:12px}
+  .note-desc{font-size:11px}
+
+  /* ── Income table ── */
+  .inc-row{font-size:11px;padding:5px 0}
+  .inc-row.big .iv{font-size:14px}
+
+  /* ── Pension strategy buttons ── */
+  #pw-coupon,#pw-swr,#pw-mixed{font-size:11px;padding:6px 4px}
+
+  /* ── HR ── */
+  .hr{margin:12px 0}
+
+  /* ── Disclaimer ── */
+  .disclaimer{padding:9px 12px;font-size:10px;line-height:1.55}
+
+  /* ── Help button ── */
+  .hbtn{width:18px;height:18px;font-size:10px;top:10px;right:10px}
+
+  /* ── Scroll spacing ── */
+  .sec{padding-bottom:4px}
+}
+
+/* Очень маленькие экраны (<390px) */
+@media(max-width:389px){
+  .g2{grid-template-columns:1fr}
+  .g4,.cc,.fg{grid-template-columns:1fr 1fr}
+  #risk-grid{grid-template-columns:1fr !important}
+  .main{padding:10px 10px 6px}
+  .mv{font-size:12px}
+  .cw{height:170px}
+  .cfl{width:90px;font-size:9px}
+}
+
+/* Landscape на телефоне */
+@media(max-width:700px) and (orientation:landscape){
+  .cw{height:160px}
+  .mob-nav{padding-bottom:4px}
+  body{padding-bottom:52px}
+}
+/* ── RISK CARDS ── */
+.risk-card{border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center}
+.risk-card:hover{border-color:var(--border2)}
+.risk-card.active{border:1.5px solid var(--blue);background:var(--blue-bg)}
+.risk-icon{font-size:22px;margin-bottom:5px}
+.risk-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.risk-alloc{font-size:10px;color:var(--text3);margin-bottom:4px}
+.risk-ret{font-size:13px;font-weight:700;color:var(--blue)}
+.risk-card[id="rk-conservative"].active{border-color:var(--green);background:var(--green-bg)}
+.risk-card[id="rk-conservative"].active .risk-ret{color:var(--green)}
+.risk-card[id="rk-aggressive"].active{border-color:var(--red);background:var(--red-bg)}
+.risk-card[id="rk-aggressive"].active .risk-ret{color:var(--red)}
+/* ── BOND CARDS ── */
+.bond-card{border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;cursor:pointer;transition:all .15s}
+.bond-card:hover{border-color:var(--border2)}
+.bond-card.active{border:1.5px solid var(--green);background:var(--green-bg)}
+.bond-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.bond-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:12px;margin-bottom:6px}
+.bond-desc{font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:6px}
+.bond-rate{font-size:14px;font-weight:700;color:var(--green)}
+/* ── INCOME TABLE ── */
+.inc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px}
+.inc-row:last-child{border-bottom:none}
+.inc-row.big{padding:10px 0;border-top:1px solid var(--border2)}
+.ik{color:var(--text2)}.iv{font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="logo">Invest<span>Calc</span> €</div>
+  <div class="hbadge">✓ v2.0 · Аудит пройден</div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+  <div class="nav-section">Базовые</div>
+  <button class="nav-item active" onclick="sw('params',this)"><span class="nav-dot" style="background:#9aa0b4"></span>Параметры</button>
+  <button class="nav-item" onclick="sw('market',this)"><span class="nav-dot" style="background:#4e9eff"></span>Финансовый рынок</button>
+  <div class="nav-section">Недвижимость</div>
+  <button class="nav-item" onclick="sw('realty',this)"><span class="nav-dot" style="background:#f5a623"></span>Аренда / Рост</button>
+  <button class="nav-item" onclick="sw('flip',this)"><span class="nav-dot" style="background:#ff7b54"></span>Флиппинг</button>
+  <div class="nav-section">Итог</div>
+  <button class="nav-item" onclick="sw('pension',this)"><span class="nav-dot" style="background:#22c992"></span>Пенсия / Доход</button>
+  <button class="nav-item" onclick="sw('compare',this)"><span class="nav-dot" style="background:#a78bfa"></span>Сравнение всех</button>
+</div>
+
+<div class="main">
+
+<!-- PARAMS -->
+<div class="sec show" id="sec-params">
+  <div class="stitle">Параметры</div>
+  <div class="ssub">Базовые настройки — применяются ко всем стратегиям</div>
+  <div class="card">
+    <div class="ct">Капитал и горизонт</div>
+    <div class="g2">
+      <div class="ctrl"><label>Начальный капитал</label><input type="range" id="principal" min="10000" max="1000000" step="1000" value="250000"><span class="vd" id="vp">250 000 €</span></div>
+      <div class="ctrl"><label>Ежемесячный взнос</label><input type="range" id="monthly" min="0" max="10000" step="100" value="0"><span class="vd" id="vm">0 €</span></div>
+      <div class="ctrl"><label>Горизонт инвестирования</label><input type="range" id="years" min="1" max="40" step="1" value="10"><span class="vd" id="vy">10 лет</span></div>
+      <div class="ctrl"><label>Ваш возраст</label><input type="range" id="age" min="18" max="65" step="1" value="35"><span class="vd" id="va">35 лет</span></div>
+      <div class="ctrl"><label>Инфляция (%/год)</label><input type="range" id="inflation" min="0" max="15" step="0.5" value="3"><span class="vd" id="vi">3.0%</span></div>
+      <div class="ctrl"><label>Налог на прибыль (%)</label><input type="range" id="tax" min="0" max="30" step="1" value="0"><span class="vd" id="vt">0%</span></div>
+    </div>
+  </div>
+  <div class="g4" id="param-mets" style="margin-bottom:14px"></div>
+  <div class="ib" id="param-note"></div>
+  <div class="hr"></div>
+  <div class="audit-tog" onclick="toggleAudit()">
+    <span class="atri" id="atri">▶</span>
+    <span>Технический аудит формул (для разработчиков)</span>
+  </div>
+  <div class="audit-wrap" id="audit-wrap">
+    <div class="card" id="audit-block"></div>
+  </div>
+</div>
+
+<!-- MARKET -->
+<div class="sec" id="sec-market">
+  <div class="stitle">Финансовый рынок</div>
+  <div class="ssub">Выберите профиль риска или конкретный инструмент</div>
+
+  <div class="ct" style="margin-bottom:10px">Профиль риска — связка акции + облигации</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px" id="risk-grid">
+    <div class="risk-card" id="rk-conservative" onclick="setRisk('conservative')">
+      <div class="risk-icon">🛡️</div>
+      <div class="risk-name">Консервативная</div>
+      <div class="risk-alloc">20% акции · 80% облигации</div>
+      <div class="risk-ret" id="rk-conservative-ret">~5.2%/год</div>
+    </div>
+    <div class="risk-card active" id="rk-balanced" onclick="setRisk('balanced')">
+      <div class="risk-icon">⚖️</div>
+      <div class="risk-name">Сбалансированная</div>
+      <div class="risk-alloc">60% акции · 40% облигации</div>
+      <div class="risk-ret" id="rk-balanced-ret">~7.6%/год</div>
+    </div>
+    <div class="risk-card" id="rk-aggressive" onclick="setRisk('aggressive')">
+      <div class="risk-icon">🚀</div>
+      <div class="risk-name">Агрессивная</div>
+      <div class="risk-alloc">90% акции · 10% облигации</div>
+      <div class="risk-ret" id="rk-aggressive-ret">~9.4%/год</div>
+    </div>
+  </div>
+  <div class="ib" id="risk-note" style="margin-bottom:14px"></div>
+
+  <div class="hr" style="margin:10px 0"></div>
+  <div class="ct" style="margin-bottom:10px">Или выберите конкретный инструмент</div>
+  <div class="fg" id="fund-grid"></div>
+  <div class="g4" id="mkt-mets"></div>
+  <div class="ib" id="mkt-info"></div>
+  <div class="cw"><canvas id="mktChart"></canvas></div>
+  <div class="leg" id="mkt-leg"></div>
+</div>
+
+<!-- REALTY -->
+<div class="sec" id="sec-realty">
+  <div class="stitle">Аренда / Рост стоимости</div>
+  <div class="ssub">Нажмите <b>?</b> на блоке — узнайте как работает каждый параметр</div>
+  <div class="rtg">
+    <button class="rb active" id="rb-cap" onclick="setRM('cap')">Рост стоимости</button>
+    <button class="rb" id="rb-rent" onclick="setRM('rent')">Аренда</button>
+    <button class="rb" id="rb-both" onclick="setRM('both')">Комбо</button>
+  </div>
+  <div class="card" style="position:relative">
+    <button class="hbtn" onclick="showHelp('obj')">?</button>
+    <div class="ct g">Объект</div>
+    <div class="g2">
+      <div class="ctrl"><label>Стоимость объекта</label><input type="range" id="pp" min="50000" max="2000000" step="5000" value="300000"><span class="vd" id="vpp">300 000 €</span></div>
+      <div class="ctrl"><label>Рост стоимости (%/год)</label><input type="range" id="pg" min="0" max="15" step="0.5" value="4"><span class="vd" id="vpg">4.0%</span></div>
+      <div class="ctrl"><label>Стоимость ремонта</label><input type="range" id="renovation" min="0" max="150000" step="1000" value="15000"><span class="vd" id="vreno">15 000 €</span></div>
+      <div class="ctrl"><label>Срок расчёта (лет)</label><input type="range" id="re-years" min="1" max="40" step="1" value="10"><span class="vd" id="vrey">10 лет</span></div>
+    </div>
+  </div>
+  <div class="trow">
+    <input type="checkbox" id="use-mortgage" checked onchange="renderRealty()">
+    <label for="use-mortgage">Использовать ипотеку</label>
+    <span id="mortgage-badge"></span>
+  </div>
+  <div class="card" id="mortgage-block" style="position:relative">
+    <button class="hbtn" onclick="showHelp('mort')">?</button>
+    <div class="ct a">Ипотека</div>
+    <div class="g2">
+      <div class="ctrl"><label>Первоначальный взнос</label><input type="range" id="own" min="0" max="600000" step="1000" value="90000"><span class="vd" id="vown">90 000 €</span></div>
+      <div class="ctrl"><label>Сумма кредита</label><span class="vd" id="vloan" style="color:var(--amber);font-size:16px;padding-top:6px">210 000 €</span></div>
+      <div class="ctrl"><label>Ставка (%/год)</label><input type="range" id="mr" min="1" max="12" step="0.25" value="4"><span class="vd" id="vmr">4.00%</span></div>
+      <div class="ctrl"><label>Срок ипотеки (лет)</label><input type="range" id="my" min="5" max="30" step="1" value="20"><span class="vd" id="vmy">20 лет</span></div>
+    </div>
+    <div id="mort-summary" style="margin-top:12px"></div>
+  </div>
+  <div class="card" style="position:relative">
+    <button class="hbtn" onclick="showHelp('rent')">?</button>
+    <div class="ct b">Аренда</div>
+    <div class="g2">
+      <div class="ctrl"><label>Аренда в месяц</label><input type="range" id="rent-mo" min="0" max="8000" step="50" value="1200"><span class="vd" id="vrentmo">1 200 €/мес</span></div>
+      <div class="ctrl"><label>Налог на аренду (%)</label><input type="range" id="rent-tax" min="0" max="50" step="1" value="25"><span class="vd" id="vrenttax">25%</span></div>
+      <div class="ctrl"><label>Расходы на содержание (%/год)</label><input type="range" id="maintain" min="0" max="5" step="0.1" value="1"><span class="vd" id="vmaintain">1.0%</span></div>
+      <div class="ctrl"><label>Вакантность (мес/год)</label><input type="range" id="vacancy" min="0" max="6" step="0.5" value="1"><span class="vd" id="vvacancy">1.0 мес</span></div>
+    </div>
+  </div>
+  <div class="card" style="position:relative">
+    <button class="hbtn" onclick="showHelp('reinv')">?</button>
+    <div class="ct p">Накопления и реинвестирование</div>
+    <div class="g2">
+      <div class="ctrl"><label>Ежемесячные накопления</label><input type="range" id="re-monthly" min="0" max="5000" step="50" value="500"><span class="vd" id="vrem">500 €/мес</span></div>
+    </div>
+    <p style="font-size:12px;color:var(--text2);margin:10px 0 4px">Реинвестировать свободный поток + накопления в:</p>
+    <div class="rg">
+      <button class="ro active" id="ri-sp500" onclick="setRI('sp500')">S&P 500 (~10%/год)</button>
+      <button class="ro" id="ri-msci" onclick="setRI('msci')">MSCI World (~8.9%)</button>
+      <button class="ro" id="ri-bonds" onclick="setRI('bonds')">Облигации (~4%)</button>
+      <button class="ro" id="ri-prop" onclick="setRI('prop')">Недвижимость</button>
+    </div>
+  </div>
+  <div class="hr"></div>
+  <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Денежный поток (ежемесячно)</div>
+  <div class="card"><div id="cfbars"></div></div>
+  <div class="g3" id="cf-mets" style="margin-bottom:14px"></div>
+  <div class="hr"></div>
+  <div class="g4" id="re-mets" style="margin-bottom:14px"></div>
+  <div class="ib" id="re-summary"></div>
+  <div class="cw"><canvas id="reChart"></canvas></div>
+  <div class="leg" id="re-leg"></div>
+</div>
+
+<!-- FLIP -->
+<div class="sec" id="sec-flip">
+  <div class="stitle">Флиппинг</div>
+  <div class="ssub">Капитал работает циклами — прибыль реинвестируется, сложный процент нарастает</div>
+
+  <!-- КАПИТАЛ -->
+  <div class="card" style="position:relative">
+    <button class="hbtn" onclick="showHelp('flip')">?</button>
+    <div class="ct co">Капитал</div>
+    <div class="g2">
+      <div class="ctrl"><label>Собственный капитал</label><input type="range" id="fp-capital" min="20000" max="2000000" step="5000" value="250000"><span class="vd" id="vfpcap">250 000 €</span></div>
+      <div class="ctrl"><label>Прирост капитала за цикл (%)</label><input type="range" id="fp-uplift" min="5" max="80" step="1" value="25"><span class="vd" id="vfpu">25%</span></div>
+      <div class="ctrl"><label>Циклов оборачиваемости в год</label><input type="range" id="fp-cycles" min="0.5" max="4" step="0.5" value="2"><span class="vd" id="vfpcy">2 цикла/год</span></div>
+      <div class="ctrl"><label>Горизонт инвестирования (лет)</label><input type="range" id="fp-years" min="1" max="20" step="1" value="10"><span class="vd" id="vfpy">10 лет</span></div>
+    </div>
+  </div>
+
+  <!-- ЗАЁМНЫЙ КАПИТАЛ -->
+  <div class="trow">
+    <input type="checkbox" id="fp-use-loan" onchange="renderFlip()">
+    <label for="fp-use-loan">Использовать заёмный капитал (рычаг)</label>
+    <span id="fp-loan-badge" style="font-size:12px;color:var(--text2)"></span>
+  </div>
+  <div class="card" id="fp-loan-block" style="opacity:.35;pointer-events:none">
+    <div class="ct co">Заёмный капитал</div>
+    <div class="g2">
+      <div class="ctrl"><label>Сумма займа</label><input type="range" id="fp-loan-amt" min="10000" max="2000000" step="5000" value="200000"><span class="vd" id="vfplamt">200 000 €</span></div>
+      <div class="ctrl"><label>Ставка займа (%/год)</label><input type="range" id="fp-loan-rate" min="2" max="20" step="0.25" value="6"><span class="vd" id="vfplr">6.00%</span></div>
+      <div class="ctrl"><label>Срок кредита</label><input type="range" id="fp-loan-months" min="6" max="240" step="6" value="60"><span class="vd" id="vfplm">5 лет (60 мес)</span></div>
+    </div>
+    <div class="ib" id="fp-loan-note" style="margin-top:10px;margin-bottom:0"></div>
+  </div>
+
+  <!-- РАСХОДЫ -->
+  <div class="card">
+    <div class="ct co">Расходы на цикл</div>
+    <div class="g2">
+      <div class="ctrl"><label>Расходы при покупке (нотариус/налог %)</label><input type="range" id="fp-buy-cost" min="0" max="12" step="0.5" value="4"><span class="vd" id="vfpbc">4.0%</span></div>
+      <div class="ctrl"><label>Расходы при продаже (риелтор %)</label><input type="range" id="fp-sell-cost" min="0" max="10" step="0.5" value="3"><span class="vd" id="vfpsc">3.0%</span></div>
+      <div class="ctrl"><label>Налог с прибыли (%)</label><input type="range" id="fp-tax" min="0" max="50" step="1" value="25"><span class="vd" id="vfptax">25%</span></div>
+      <div class="ctrl"><label>Прочие расходы на цикл (%)</label><input type="range" id="fp-misc" min="0" max="10" step="0.5" value="2"><span class="vd" id="vfpmisc">2.0%</span></div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+  <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Экономика одного цикла</div>
+  <div class="card" id="deal-block"></div>
+
+  <div class="hr"></div>
+  <div class="g4" id="flip-mets" style="margin-bottom:14px"></div>
+  <div class="ib" id="flip-summary"></div>
+  <div class="ytable-wrap"><table class="ytable">
+    <thead><tr><th>Год</th><th>Капитал (начало)</th><th>Прибыль за год</th><th>Капитал (конец)</th><th>vs S&P 500</th></tr></thead>
+    <tbody id="ytbody"></tbody>
+  </table></div>
+  <div class="cw"><canvas id="flipChart"></canvas></div>
+  <div class="leg" id="flip-leg"></div>
+</div>
+
+<!-- PENSION -->
+<div class="sec" id="sec-pension">
+  <div class="stitle">Пенсия / Пассивный доход</div>
+  <div class="ssub">Сколько вы получите с накопленного капитала — через облигации и купоны</div>
+
+  <div class="card">
+    <div class="ct g">Ваш накопленный капитал</div>
+    <div class="g2">
+      <div class="ctrl"><label>Капитал на момент пенсии</label><input type="range" id="pn-capital" min="50000" max="20000000000" step="50000" value="500000"><span class="vd" id="vpnc">500 000 €</span></div>
+      <div class="ctrl"><label>Возраст выхода на пенсию</label><input type="range" id="pn-age" min="45" max="80" step="1" value="65"><span class="vd" id="vpna">65 лет</span></div>
+      <div class="ctrl"><label>Ожидаемый срок жизни (лет)</label><input type="range" id="pn-life" min="10" max="50" step="1" value="25"><span class="vd" id="vpnl">25 лет</span></div>
+      <div class="ctrl"><label>Инфляция на пенсии (%/год)</label><input type="range" id="pn-inf" min="0" max="10" step="0.5" value="3"><span class="vd" id="vpni">3.0%</span></div>
+    </div>
+  </div>
+
+  <div class="ct" style="margin-bottom:10px">Выберите инструмент пассивного дохода</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px" id="bond-grid"></div>
+
+  <div class="card" style="position:relative">
+    <div class="ct b">Параметры облигаций</div>
+    <div class="g2">
+      <div class="ctrl"><label>Купонная ставка (%/год)</label><input type="range" id="pn-coupon" min="1" max="12" step="0.25" value="5"><span class="vd" id="vpncoupon">5.00%</span></div>
+      <div class="ctrl"><label>Налог на купонный доход (%)</label><input type="range" id="pn-tax" min="0" max="30" step="1" value="25"><span class="vd" id="vpntax">25%</span></div>
+      <div class="ctrl"><label>Доля капитала в облигациях (%)</label><input type="range" id="pn-alloc" min="10" max="100" step="5" value="80"><span class="vd" id="vpnalloc">80%</span></div>
+      <div class="ctrl"><label>Доля в акционном ETF (%)</label><span class="vd" id="vpneq" style="color:var(--green);padding-top:6px">20% (~10%/год)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct" style="color:var(--amber)">Стратегия снятия</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="rb active" id="pw-coupon" onclick="setPW('coupon')">Только купоны (капитал цел)</button>
+      <button class="rb" id="pw-swr" onclick="setPW('swr')">Правило 4% (SWR)</button>
+      <button class="rb" id="pw-mixed" onclick="setPW('mixed')">Смешанный</button>
+    </div>
+    <div class="ib" id="pn-strategy-note" style="margin-bottom:0"></div>
+  </div>
+
+  <div class="hr"></div>
+  <div class="g4" id="pn-mets" style="margin-bottom:14px"></div>
+
+  <div class="card" id="pn-income-block"></div>
+
+  <div class="hr"></div>
+  <div class="cw"><canvas id="pensionChart"></canvas></div>
+  <div class="leg" id="pn-leg"></div>
+  <div class="ib" id="pn-summary"></div>
+</div>
+
+<!-- COMPARE -->
+<div class="sec" id="sec-compare">
+  <div class="stitle">Сравнение стратегий</div>
+  <div class="ssub">Нажмите на карточку — получите описание стратегии простым языком</div>
+  <div class="cc" id="cmp-cards"></div>
+  <div class="cw tall"><canvas id="cmpChart"></canvas></div>
+  <div class="leg" id="cmp-leg"></div>
+  <div class="ib" id="cmp-note"></div>
+  <div class="hr"></div>
+  <div style="font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">Пояснительная записка — чем отличаются стратегии</div>
+  <div class="note-box" id="note-box"></div>
+</div>
+
+</div></div>
+
+<!-- ── MOBILE NAV ── -->
+<nav class="mob-nav" role="navigation" aria-label="Основная навигация">
+  <div class="mob-nav-inner">
+    <button class="mnav active" id="mn-params" onclick="swMob('params')" aria-label="Параметры">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      Параметры
+    </button>
+    <button class="mnav" id="mn-market" onclick="swMob('market')" aria-label="Финансовый рынок">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Финрынок
+    </button>
+    <button class="mnav" id="mn-realty" onclick="swMob('realty')" aria-label="Аренда и недвижимость">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+      Аренда
+    </button>
+    <button class="mnav" id="mn-flip" onclick="swMob('flip')" aria-label="Флиппинг">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Флиппинг
+    </button>
+    <button class="mnav" id="mn-pension" onclick="swMob('pension')" aria-label="Пенсия и доход">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/><path d="M3 21c0-4.4 4-8 9-8s9 3.6 9 8"/><path d="M17 17l2 2 4-4"/></svg>
+      Пенсия
+    </button>
+    <button class="mnav" id="mn-compare" onclick="swMob('compare')" aria-label="Сравнение стратегий">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Итог
+    </button>
+  </div>
+</nav>
+
+<!-- ── DISCLAIMER ── -->
+<div class="disclaimer">
+  <b>InvestCalc € v2.0 — разработано Pavel Gordon для сравнения инвестиционных стратегий.</b><br>
+  Калькулятор иллюстрирует разницу в накоплении капитала и <b>не является финансовой рекомендацией</b>.
+  Все исторические доходности приведены в номинальном выражении. Проконсультируйтесь с лицензированным финансовым советником перед принятием решений.
+</div>
+
+<script>
+const E=v=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:0}).format(Math.round(v))+' €';
+const Ep=v=>(v>=0?'+':'')+E(v);
+const Pct=v=>v.toFixed(2)+'%';
+const Pct1=v=>v.toFixed(1)+'%';
+let selFund='sp500',realtyMode='cap',reinvestMode='sp500';
+let riskMode='balanced', selBond='treasury', pwMode='coupon';
+let charts={};
+
+// ── RISK PROFILES ──
+const RISK_PROFILES={
+  conservative:{eq:.20,bond:.80,rate:.20*.10+.80*.04,label:'Консервативная (20% акции + 80% облигации)'},
+  balanced:    {eq:.60,bond:.40,rate:.60*.10+.40*.04,label:'Сбалансированная (60% акции + 40% облигации)'},
+  aggressive:  {eq:.90,bond:.10,rate:.90*.10+.10*.04,label:'Агрессивная (90% акции + 10% облигации)'},
+};
+
+function setRisk(mode){
+  riskMode=mode;
+  marketView='risk';
+  ['conservative','balanced','aggressive'].forEach(k=>{
+    document.getElementById('rk-'+k).classList.toggle('active',k===mode);
+  });
+  renderAll();
+}
+
+// ── BOND INSTRUMENTS ──
+const BONDS=[
+  {id:'treasury',name:'Казначейские облигации',tag:'AAA',tagcls:'bd',
+   desc:'Гособлигации Германии (Bund) / США (T-Notes). Максимальная надёжность, минимальный риск дефолта.',
+   rate:4.5,risk:'Минимальный'},
+  {id:'corp_ig',name:'Корпоративные IG',tag:'BBB+',tagcls:'eq',
+   desc:'Облигации крупных компаний (Apple, VW, Total). Немного выше доходность при сохранении надёжности.',
+   rate:5.5,risk:'Низкий'},
+  {id:'corp_hy',name:'High Yield (HY)',tag:'BB',tagcls:'lc',
+   desc:'Облигации компаний с меньшим рейтингом. Купон значительно выше, но есть риск дефолта ~2-3%/год.',
+   rate:8.0,risk:'Средний'},
+  {id:'em_bonds',name:'EM Облигации',tag:'BB-',tagcls:'tg',
+   desc:'Суверенные облигации развивающихся стран (Бразилия, Мексика, Турция). Высокий купон, высокий риск.',
+   rate:9.5,risk:'Высокий'},
+];
+
+function setSelBond(id){
+  selBond=id;
+  const b=BONDS.find(x=>x.id===id);
+  document.getElementById('pn-coupon').value=b.rate;
+  document.getElementById('vpncoupon').textContent=b.rate.toFixed(2)+'%';
+  renderBondGrid();
+  renderPension();
+}
+
+function setPW(mode){
+  pwMode=mode;
+  ['coupon','swr','mixed'].forEach(k=>document.getElementById('pw-'+k).classList.toggle('active',k===mode));
+  renderPension();
+}
+
+function renderBondGrid(){
+  document.getElementById('bond-grid').innerHTML=BONDS.map(b=>`
+    <div class="bond-card${b.id===selBond?' active':''}" onclick="setSelBond('${b.id}')">
+      <div class="bond-name">${b.name}</div>
+      <span class="bond-tag ${b.tagcls}">${b.tag} · Риск: ${b.risk}</span>
+      <div class="bond-desc">${b.desc}</div>
+      <div class="bond-rate">~${b.rate.toFixed(1)}%/год</div>
+    </div>`).join('');
+}
+
+// ── FLIP CALC (capital-based) ──
+//
+// Модель:
+//  - Собственный капитал + заёмный капитал = весь рабочий капитал
+//  - Каждый ЦИКЛ: весь капитал оборачивается, даёт прирост,
+//    вычитаются расходы на вход/выход/прочие, налог с прибыли
+//  - Кредит взят ОДИН РАЗ на весь горизонт.
+//    Стоимость кредита = loanAmt × rate × (loanMonths/12) — полная сумма процентов
+//    за весь срок кредита, вычитается из прибыли РАВНОМЕРНО по годам:
+//    annualLoanCost = totalLoanInterest / (loanMonths/12)
+//  - ROI за цикл считается от СОБСТВЕННОГО капитала (ownCap),
+//    потому что заёмный — чужие деньги
+//  - Собственный капитал нарастает по сложному проценту
+//
+function calcFlipNew(){
+  const ownCap        = gv('fp-capital');
+  const upliftPct     = gv('fp-uplift')/100;
+  const cyclesPerYear = gv('fp-cycles');
+  const flipYears     = gv('fp-years');
+  const buyCostPct    = gv('fp-buy-cost')/100;
+  const sellCostPct   = gv('fp-sell-cost')/100;
+  const taxRate       = gv('fp-tax')/100;
+  const miscPct       = gv('fp-misc')/100;
+  const useLoan       = document.getElementById('fp-use-loan').checked;
+  const loanAmt       = useLoan ? gv('fp-loan-amt') : 0;
+  const loanRate      = gv('fp-loan-rate')/100;
+  const loanMonths    = gv('fp-loan-months');
+  const loanYears     = loanMonths / 12;
+
+  // ── Стоимость кредита (аннуитетная модель) ──
+  // Банковский кредит = аннуитет: ежемесячный платёж фиксирован.
+  // Общая сумма выплат = платёж × месяцы. Переплата = сумма − тело долга.
+  let totalLoanInterest = 0, annualLoanCost = 0, loanCostPerCycle = 0, monthlyLoanPayment = 0;
+  if(useLoan && loanAmt > 0 && loanYears > 0 && loanRate > 0){
+    const rMo = loanRate / 12;
+    const nm  = loanMonths;
+    // Аннуитетный платёж
+    monthlyLoanPayment  = loanAmt * (rMo * Math.pow(1+rMo, nm)) / (Math.pow(1+rMo, nm) - 1);
+    const totalPaid     = monthlyLoanPayment * nm;
+    totalLoanInterest   = totalPaid - loanAmt;           // только проценты
+    annualLoanCost      = totalLoanInterest / loanYears; // в год
+    loanCostPerCycle    = annualLoanCost / cyclesPerYear; // на цикл
+  }
+
+  // ── Экономика одного цикла ──
+  const totalDeployed  = ownCap + loanAmt;   // весь капитал в обороте
+  const entryCosts     = totalDeployed * buyCostPct;
+  const capitalIn      = totalDeployed - entryCosts;
+  const grossValue     = capitalIn * (1 + upliftPct);
+  const exitCosts      = grossValue * sellCostPct;
+  const miscCosts      = totalDeployed * miscPct;
+
+  // Прибыль до налога = прирост минус все расходы минус стоимость кредита за цикл
+  const grossProfit    = grossValue - exitCosts - totalDeployed - miscCosts - loanCostPerCycle;
+  const taxAmt         = Math.max(0, grossProfit * taxRate);
+  const netProfit      = grossProfit - taxAmt;
+
+  // ROI за цикл на СОБСТВЕННЫЙ капитал
+  const roiCycle       = ownCap > 0 ? netProfit / ownCap : 0;
+
+  // Годовой множитель роста собственного капитала
+  const annMult        = Math.pow(1 + roiCycle, cyclesPerYear);
+  const annROI         = annMult - 1;
+
+  // ── Погодовая симуляция ──
+  // ПРАВИЛЬНАЯ МОДЕЛЬ: каждый цикл собственный капитал умножается на (1+roiCycle).
+  // За год cyclesPerYear циклов → annMult = (1+roiCycle)^cyclesPerYear.
+  // Когда кредит выплачен — только собственный капитал работает (без рычага).
+  //
+  // Для года с действующим кредитом рассчитываем annMult с рычагом отдельно.
+  // Для года без кредита — annMult без рычага.
+
+  // ROI без займа (на случай когда кредит уже погашен)
+  const totalDeployedNoLoan = ownCap;
+  const entryCostsNoLoan    = totalDeployedNoLoan * buyCostPct;
+  const capitalInNoLoan     = totalDeployedNoLoan - entryCostsNoLoan;
+  const grossValueNoLoan    = capitalInNoLoan * (1 + upliftPct);
+  const exitCostsNoLoan     = grossValueNoLoan * sellCostPct;
+  const miscCostsNoLoan     = totalDeployedNoLoan * miscPct;
+  const grossProfitNoLoan   = grossValueNoLoan - exitCostsNoLoan - totalDeployedNoLoan - miscCostsNoLoan;
+  const taxNoLoan           = Math.max(0, grossProfitNoLoan * taxRate);
+  const netNoLoan           = grossProfitNoLoan - taxNoLoan;
+  const roiNoLoan           = ownCap > 0 ? netNoLoan / ownCap : 0;
+  const annMultNoLoan       = Math.pow(1 + roiNoLoan, cyclesPerYear);
+
+  const capPts = [ownCap];
+  const sp0Pts = [ownCap];
+  const rows   = [];
+  let capital  = ownCap;
+
+  for(let y = 1; y <= flipYears; y++){
+    const capStart  = capital;
+    const stillLoan = useLoan && y <= loanYears;
+
+    // Выбираем множитель: с рычагом (пока кредит действует) или без
+    let yearMult;
+    if(stillLoan){
+      // Для текущего уровня капитала пересчитываем ROI с рычагом
+      const dep    = capital + loanAmt;
+      const en     = dep * buyCostPct;
+      const cin    = dep - en;
+      const gv2    = cin * (1 + upliftPct);
+      const ex     = gv2 * sellCostPct;
+      const mi     = dep * miscPct;
+      const gp2    = gv2 - ex - dep - mi - loanCostPerCycle;
+      const tx2    = Math.max(0, gp2 * taxRate);
+      const np2    = gp2 - tx2;
+      const roi2   = capital > 0 ? np2 / capital : 0;
+      yearMult     = Math.pow(1 + roi2, cyclesPerYear);
+    } else {
+      yearMult = annMultNoLoan;
+    }
+
+    capital = Math.max(capital * yearMult, 0);
+    capPts.push(capital);
+    sp0Pts.push(ownCap * Math.pow(1.10, y));
+    rows.push({y, capStart, yearProfit: capital - capStart, capital, stillLoan});
+  }
+
+  const cagr = capital > 0 && ownCap > 0
+    ? Math.pow(capital / ownCap, 1 / flipYears) - 1
+    : 0;
+
+  return{
+    ownCap, loanAmt, loanRate, loanMonths, loanYears, useLoan,
+    totalLoanInterest, annualLoanCost, loanCostPerCycle, monthlyLoanPayment,
+    totalDeployed, entryCosts, grossValue, exitCosts, miscCosts,
+    grossProfit, taxAmt, netProfit, roiCycle, annROI, annMult,
+    capPts, sp0Pts, rows, flipYears, cyclesPerYear, cagr,
+    capital, buyCostPct, sellCostPct, taxRate, miscPct, upliftPct,
+  };
+}
+
+// calcFlip & calcFlipLoan → calcFlipNew
+
+function gv(id){return +document.getElementById(id).value;}
+function gc(id){return document.getElementById(id).checked;}
+function getP(){return{P:gv('principal'),pmt:gv('monthly'),years:gv('years'),age:gv('age'),inf:gv('inflation')/100,tax:gv('tax')/100};}
+
+// ── MATH ──
+function fvCalc(P,pmt,years,rate){
+  if(rate===0) return P+pmt*years*12;
+  const r=rate/12,n=years*12,g=Math.pow(1+r,n);
+  return P*g+(pmt>0?pmt*(g-1)/r:0);
+}
+function buildSeries(P,pmt,years,rate){
+  const pts=[P];
+  for(let y=1;y<=years;y++) pts.push(fvCalc(P,pmt,y,rate));
+  return pts;
+}
+function buildTDF(P,pmt,years,age){
+  const pts=[P];let bal=P;
+  for(let y=1;y<=years;y++){
+    const eq=Math.max(0,Math.min(1,(65-(age+y-1))/40));
+    const r=(eq*.10+(1-eq)*.04)/12;
+    for(let m=0;m<12;m++) bal=bal*(1+r)+pmt;
+    pts.push(bal);
+  }
+  return pts;
+}
+function afterTax(P,pmt,years,gross,taxRate){
+  const inv=P+pmt*years*12;
+  return gross-Math.max(0,(gross-inv)*taxRate);
+}
+function realVal(nom,years,inf){return nom/Math.pow(1+inf,years);}
+function calcMort(){
+  const pp=gv('pp'),own=gv('own'),rate=gv('mr')/100,yrs=gv('my');
+  const loan=Math.max(0,pp-own);
+  if(loan<=0) return{loan:0,monthly:0,mrMo:0,yrs,totalPaid:0,totalInterest:0};
+  const mrMo=rate/12,nm=yrs*12;
+  const monthly=loan*(mrMo*Math.pow(1+mrMo,nm))/(Math.pow(1+mrMo,nm)-1);
+  return{loan,monthly,mrMo,yrs,totalPaid:monthly*nm,totalInterest:monthly*nm-loan};
+}
+function loanBalance(mort,y){
+  if(mort.loan<=0||y>=mort.yrs) return 0;
+  const n=y*12,m=mort.mrMo;
+  return mort.loan*Math.pow(1+m,n)-mort.monthly*(Math.pow(1+m,n)-1)/m;
+}
+
+// ── REALTY ──
+function calcRealty(){
+  const p=getP();
+  const pp=gv('pp'),own=gv('own'),pg=gv('pg')/100;
+  const rentMo=gv('rent-mo'),rentTaxR=gv('rent-tax')/100;
+  const maintR=gv('maintain')/100,vacancy=gv('vacancy');
+  const reYears=gv('re-years'),reMonthly=gv('re-monthly');
+  const renovation=gv('renovation');
+  const useMort=gc('use-mortgage');
+  const mort=useMort?calcMort():{loan:0,monthly:0,mrMo:0,yrs:0,totalPaid:0,totalInterest:0};
+  const totalInvested=(useMort?own:pp)+renovation;
+  const vacLossMo=rentMo*vacancy/12;
+  const effRentMo=rentMo-vacLossMo;
+  const rentTaxMo=effRentMo*rentTaxR;
+  const netRentMo=effRentMo-rentTaxMo;
+  const maintMo=pp*maintR/12;
+  const netCFMo=netRentMo-maintMo-mort.monthly;
+  const cfItems=[
+    {label:'Аренда (брутто)',val:rentMo},
+    {label:`Вакантность (${vacancy} мес/год)`,val:-vacLossMo},
+    {label:`Налог на аренду (${gv('rent-tax')}%)`,val:-rentTaxMo},
+    {label:`Содержание (${Pct1(maintR*100)}/год)`,val:-maintMo},
+    {label:'Ипотека (платёж)',val:-mort.monthly},
+  ];
+  const propPts=[pp],equityPts=[useMort?own:pp],netCFAccPts=[0],reinvestPts=[0];
+  let propVal=pp,reinvestBal=0,cumulCF=0;
+  const RIRATE={sp500:.10,msci:.089,bonds:.04};
+  for(let y=1;y<=reYears;y++){
+    propVal*=(1+pg);
+    const rentScale=Math.pow(1+p.inf,y-1);
+    const yearNetRent=realtyMode!=='cap'?rentMo*rentScale*(1-vacancy/12)*(1-rentTaxR)*12:0;
+    const yearMaint=propVal*maintR;
+    const yearMort=(y<=mort.yrs)?mort.monthly*12:0;
+    const yearCF=yearNetRent-yearMaint-yearMort;
+    cumulCF+=yearCF;netCFAccPts.push(cumulCF);
+    const loanLeft=loanBalance(mort,y);
+    propPts.push(propVal);equityPts.push(propVal-loanLeft);
+    const freeMo=reMonthly+Math.max(0,yearCF/12);
+    if(reinvestMode!=='prop'&&RIRATE[reinvestMode]){
+      const r=RIRATE[reinvestMode];
+      reinvestBal=reinvestBal*Math.pow(1+r/12,12)+fvCalc(0,freeMo,1,r);
+    } else {
+      reinvestBal=(reinvestBal+freeMo*12)*(1+pg);
+    }
+    reinvestPts.push(reinvestBal);
+  }
+  const finalEquity=equityPts[reYears],finalReinvest=reinvestPts[reYears];
+  const totalCapital=finalEquity+finalReinvest;
+  const roiPct=totalInvested>0?(totalCapital-totalInvested)/totalInvested*100:0;
+  const annRoi=totalInvested>0?(Math.pow(totalCapital/totalInvested,1/reYears)-1)*100:0;
+  return{pp,own,renovation,totalInvested,mort,useMort,netCFMo,cfItems,
+    propPts,equityPts,netCFAccPts,reinvestPts,
+    finalEquity,finalProp:propPts[reYears],finalReinvest,totalCapital,
+    roiPct,annRoi,reYears,inflation:p.inf};
+}
+
+// calcFlip → see calcFlipNew above
+
+// ── FUNDS ──
+const funds=[
+  {id:'sp500',name:'S&P 500',tag:'eq',tl:'Акции США',rate:.10,color:'#4e9eff',dash:[],
+   short:'500 крупнейших компаний США. ~10%/год номинал.'},
+  {id:'msci',name:'MSCI World',tag:'eq',tl:'Глобал. акции',rate:.089,color:'#22c992',dash:[6,3],
+   short:'23 страны, 1500+ компаний. Максимальная диверсификация.'},
+  {id:'bonds',name:'Облигации ЕС',tag:'bd',tl:'Облигации',rate:.04,color:'#f5a623',dash:[3,3],
+   short:'Государственные и корп. бонды еврозоны. Низкий риск.'},
+  {id:'em',name:'EM Markets',tag:'eq',tl:'Развив. рынки',rate:.099,color:'#f05e6a',dash:[4,2],
+   short:'Китай, Индия, Бразилия. Высокая волатильность.'},
+  {id:'tdf',name:'Target Date',tag:'tg',tl:'Lifecycle',rate:null,color:'#a78bfa',dash:[2,2],
+   short:'Акции → облигации по мере возраста. Для пенсии.'},
+  {id:'reit',name:'REIT ETF',tag:'lc',tl:'Недвижимость',rate:.085,color:'#ff7b54',dash:[5,2],
+   short:'Трасты недвижимости — аренда + рост стоимости.'},
+];
+
+// ── HELP DATA ──
+const H={
+  sp500:{title:'S&P 500 — Индекс акций США',tag:'Акции США',tcls:'eq',sections:[
+    {h:'Что это простыми словами?',t:'Представьте, что вы купили крошечный кусочек 500 самых крупных американских компаний сразу: Apple, Microsoft, Amazon, Google, Tesla. Когда они растут — растут ваши деньги. Это называется индексный фонд (ETF).'},
+    {h:'Откуда берётся доход?',t:'Компании зарабатывают, их акции дорожают, плюс часть выплачивает дивиденды. Исторически индекс рос примерно на 10% в год в номинале — то есть каждые ~7 лет ваши деньги удваиваются.'},
+    {h:'Каковы риски?',t:'В кризис 2008 года индекс упал на 37%. В 2022 году на 19%. Но за каждым падением следовало восстановление. Главный риск — продать в панике на дне и зафиксировать убыток.'},
+  ],pills:[{t:'~10%/год историческая доходность',c:'pos'},{t:'Высокая ликвидность',c:'neu'},{t:'Риск: средний-высокий',c:'neg'}],
+  verdict:'Лучший выбор для горизонта <b>от 7 лет</b>. Не подходит для денег, которые могут понадобиться в ближайшие 2–3 года. Идеален как основа любого инвестиционного портфеля.'},
+
+  msci:{title:'MSCI World — Весь мир в одном фонде',tag:'Глобальные акции',tcls:'eq',sections:[
+    {h:'Что это простыми словами?',t:'Если S&P 500 — это ставка на США, то MSCI World — ставка на весь развитый мир: США, Германия, Япония, Великобритания, Франция и ещё 18 стран. Более 1500 компаний в одном фонде.'},
+    {h:'Чем отличается от S&P 500?',t:'Чуть ниже доходность (~8.9% против 10%), но меньше зависимость от одной страны. Если американская экономика замедляется — европейские или азиатские рынки могут компенсировать. Это и называется диверсификацией.'},
+    {h:'Каковы риски?',t:'Похожие на S&P 500, но немного сглажены за счёт географии. В глобальный кризис падает тоже, но часто меньше. Хорошо подходит тем, кто не хочет рисковать только американским рынком.'},
+  ],pills:[{t:'~8.9%/год',c:'pos'},{t:'Лучшая диверсификация в мире',c:'neu'},{t:'Риск: средний',c:'neg'}],
+  verdict:'Оптимальный инструмент для <b>основы долгосрочного портфеля</b>. Если не знаете что выбрать — MSCI World почти всегда правильный ответ.'},
+
+  bonds:{title:'Облигации ЕС — Долг государства',tag:'Облигации',tcls:'bd',sections:[
+    {h:'Что это простыми словами?',t:'Вы даёте деньги в долг государству (Германия, Франция, Нидерланды) или крупной корпорации. Они возвращают долг через несколько лет с процентами. Это как вклад в банке, только надёжнее и торгуется на бирже.'},
+    {h:'Откуда берётся доход?',t:'Каждый год вы получаете купонный доход — фиксированный процент (~4%/год). Предсказуемо, стабильно. В кризис облигации часто растут, пока акции падают — они защищают портфель.'},
+    {h:'Каковы риски?',t:'Главный враг — инфляция. При 4% доходности и 3% инфляции реальный прирост всего 1%. В периоды высокой инфляции (2021–2022) облигации давали отрицательную реальную доходность. Также есть процентный риск: при росте ставок цены облигаций падают.'},
+  ],pills:[{t:'~4%/год',c:'pos'},{t:'Минимальный риск потери',c:'neu'},{t:'Слабая защита от инфляции',c:'neg'}],
+  verdict:'Подходит для <b>консервативных инвесторов</b> и как «страховка» в портфеле. Хорошо работает для горизонта менее 5 лет или для денег, которые точно понадобятся в срок.'},
+
+  em:{title:'EM Markets — Развивающиеся рынки',tag:'Развивающиеся рынки',tcls:'eq',sections:[
+    {h:'Что это простыми словами?',t:'Акции компаний из Китая, Индии, Бразилии, Тайваня, Мексики и других «молодых» экономик. Они растут быстрее развитых стран — демография, урбанизация, рост среднего класса. Но и рисков больше.'},
+    {h:'Почему доходность выше?',t:'«Молодые» экономики растут быстрее. Индия сейчас растёт на 6–7% ВВП в год — против 2–3% у США. Это транслируется в рост корпоративных прибылей и, соответственно, акций.'},
+    {h:'Почему риск выше?',t:'Политические риски (Китай ограничил частный бизнес в 2021 — акции упали на 50%), валютные колебания, менее прозрачная корпоративная культура. EM Markets требуют крепких нервов.'},
+  ],pills:[{t:'~9.9%/год',c:'pos'},{t:'Высокая волатильность',c:'neg'},{t:'Риск: высокий',c:'neg'}],
+  verdict:'Рекомендуется только как <b>часть портфеля (10–20%)</b>, не как основной актив. Горизонт — минимум 10 лет. Не подходит если вы нервничаете при просадках.'},
+
+  tdf:{title:'Target Date Fund — Умный пенсионный фонд',tag:'Lifecycle фонд',tcls:'tg',sections:[
+    {h:'Что это простыми словами?',t:'Это фонд, который «стареет» вместе с вами. В 30 лет — 90% в акциях, потому что впереди ещё 35 лет до пенсии. В 55 лет — уже 60% в облигациях, потому что терять нельзя. Всё происходит автоматически.'},
+    {h:'Как работает глайдпас?',t:'Формула: доля акций = (65 − ваш возраст) / 40. Например, в 35 лет: (65−35)/40 = 75% акций, 25% облигаций. В 55 лет: (65−55)/40 = 25% акций, 75% облигаций. Без вашего участия, каждый год состав меняется.'},
+    {h:'Зачем это нужно?',t:'Типичная ошибка — держать весь портфель в акциях до 64 лет, а потом рынок падает на 40% прямо перед пенсией. Target Date Fund защищает от этого, постепенно снижая риск по мере приближения к пенсионному возрасту.'},
+  ],pills:[{t:'Автоматическое управление',c:'neu'},{t:'Идеально для пенсии',c:'pos'},{t:'Риск снижается с возрастом',c:'pos'}],
+  verdict:'Лучший выбор для <b>пенсионных накоплений</b>. Не нужно ничего делать самостоятельно — фонд всё регулирует. Особенно рекомендуется тем, кто не хочет разбираться в деталях.'},
+
+  reit:{title:'REIT ETF — Недвижимость без хлопот',tag:'Фонд недвижимости',tcls:'lc',sections:[
+    {h:'Что это простыми словами?',t:'REIT — компания, которая владеет десятками торговых центров, складов, офисов или жилых комплексов и сдаёт их в аренду. Вы покупаете акции этой компании на бирже — и получаете часть арендного дохода в виде дивидендов.'},
+    {h:'Чем отличается от покупки квартиры?',t:'Не нужно 200 000 € для входа — можно начать от 100 €. Не нужно искать арендаторов, делать ремонт, платить налоги. Продать можно в любой момент (ликвидность как у акций). Минус — вы не контролируете объекты.'},
+    {h:'Каковы риски?',t:'REIT чувствительны к процентным ставкам: при высоких ставках (2022–2024) они падали, потому что недвижимость берут в кредит. В кризис 2008 REIT упали на 70%. Дивидендная доходность ~4–5%/год — это стабильный пассивный доход.'},
+  ],pills:[{t:'~8.5%/год',c:'pos'},{t:'Пассивный доход от аренды',c:'neu'},{t:'Чувствителен к ставкам',c:'neg'}],
+  verdict:'Хороший инструмент <b>диверсификации</b> — недвижимость ведёт себя иначе чем акции. Рекомендуется как 10–20% портфеля вместе с акционными ETF.'},
+
+  obj:{title:'Рост стоимости недвижимости',tag:'Физическая недвижимость',tcls:'eq',sections:[
+    {h:'Как зарабатываются деньги?',t:'Вы купили квартиру за 300 000 €. Через 10 лет она стоит 450 000 €. Разница в 150 000 € — это и есть доход от роста стоимости. В Европе жильё исторически дорожает на 3–6% в год в зависимости от города.'},
+    {h:'Зачем нужна ипотека?',t:'Ипотека — это финансовый рычаг. Вы вложили 90 000 € своих, а купили объект за 300 000 €. Если он вырос на 4% (12 000 €) — это 13% на ваш капитал, а не 4%. Рычаг умножает доходность, но и умножает риск.'},
+    {h:'Что учитывает калькулятор?',t:'Ежегодный рост стоимости объекта, уменьшение долга по ипотеке, рост вашей доли (equity), расходы на ремонт как часть вложений. Реинвестирование свободных средств в финансовые инструменты.'},
+  ],pills:[{t:'Кредитный рычаг',c:'pos'},{t:'Защита от инфляции',c:'pos'},{t:'Низкая ликвидность',c:'neg'}],
+  verdict:'Отличная стратегия при <b>правильной цене покупки</b>. Переплатить за объект — главный риск. При разумной ипотеке и растущем рынке — один из лучших способов накопить капитал.'},
+
+  mort:{title:'Ипотека — как это работает',tag:'Финансирование',tcls:'bd',sections:[
+    {h:'Что такое аннуитетный платёж?',t:'Каждый месяц вы платите банку одну и ту же сумму. Но в начале 90% — это проценты и только 10% — возврат долга. К концу срока — наоборот. Это называется амортизация. Именно поэтому переплата такая большая.'},
+    {h:'Сколько реально придётся заплатить?',t:'При кредите 210 000 € на 20 лет под 4% ежемесячный платёж ~1273 €. За 20 лет выплатите ~305 000 €. Переплата ~95 000 €. Это цена за использование чужих денег — но рычаг при этом работает на вас.'},
+    {h:'Что такое LTV?',t:'Loan-to-Value — отношение кредита к стоимости объекта. Взнос 30% = LTV 70%. Чем меньше LTV — тем лучше ставку предложит банк и тем меньше риск «уйти под воду» (когда долг больше стоимости жилья).'},
+  ],pills:[{t:'Рычаг для роста',c:'pos'},{t:'Переплата процентов',c:'neg'},{t:'Снижает денежный поток',c:'neg'}],
+  verdict:'Ипотека выгодна когда <b>ставка ниже роста стоимости объекта</b>. При 4% ставке и 5% росте — вы в плюсе. При 8% ставке и 3% росте — сомнительно. Всегда считайте денежный поток.'},
+
+  rent:{title:'Аренда — реальный доход',tag:'Арендный доход',tcls:'eq',sections:[
+    {h:'Почему доход меньше чем кажется?',t:'Аренда 1200 €/мес — это не то, что вы кладёте в карман. Вычитаются: налог на аренду (в большинстве стран ЕС 19–30%), вакантность (квартира не сдаётся ~1 месяц/год), расходы на содержание (страховка, ремонт, управляющая компания). Реальный доход в 1.5–2 раза меньше.'},
+    {h:'Что такое вакантность?',t:'Квартира не сдаётся 100% времени. Арендаторы съезжают — нужно 2–4 недели на поиск новых, уборку, мелкий ремонт. В среднем 1 месяц/год = 8% потери дохода. В туристических городах можно сдавать посуточно — доход выше, но нестабильнее.'},
+    {h:'Перекрывает ли аренда ипотеку?',t:'Это ключевой вопрос! Если чистый поток положительный — объект работает сам. Если отрицательный — вы доплачиваете из кармана каждый месяц. Это не всегда плохо: вы строите капитал, но это активный расход, а не пассивный доход.'},
+  ],pills:[{t:'Пассивный доход',c:'pos'},{t:'Налоги съедают часть',c:'neg'},{t:'Требует управления',c:'neg'}],
+  verdict:'Аренда имеет смысл когда <b>чистый поток ≥ 0 или объект быстро растёт</b>. Лучшие рынки аренды — крупные университетские города, туристические центры, столицы с дефицитом жилья.'},
+
+  reinv:{title:'Реинвестирование — сила сложного процента',tag:'Накопления',tcls:'tg',sections:[
+    {h:'Почему это так важно?',t:'Каждый евро дохода, вложенный обратно в растущий актив, сам начинает приносить доход. Этот новый доход тоже реинвестируется. Через 20 лет разница между «снимать каждый год» и «реинвестировать» может быть в 3–4 раза.'},
+    {h:'Простой пример',t:'Вы вкладываете 500 €/мес в S&P 500 на 20 лет. Вложите 120 000 €. Без реинвестирования — примерно 120 000 € на выходе. С реинвестированием — около 380 000 €. Разница 260 000 € — это и есть работа сложного процента.'},
+    {h:'Какой инструмент выбрать для реинвестирования?',t:'S&P 500 или MSCI World — максимальная историческая доходность, но с просадками. Облигации — стабильно, но медленно. Новая недвижимость — если хотите масштабировать портфель объектов. Нет универсального ответа.'},
+  ],pills:[{t:'Сложный процент работает',c:'pos'},{t:'Выбор актива критичен',c:'neu'},{t:'Горизонт 10+ лет',c:'neu'}],
+  verdict:'Даже <b>небольшие суммы</b> реинвестирования дают огромный результат на длинном горизонте. Главное — не прерываться. Каждый год без реинвестирования — упущенный доход на будущие годы.'},
+
+  flip:{title:'Флиппинг — активная стратегия',tag:'Активный доход',tcls:'lc',sections:[
+    {h:'Что такое флиппинг?',t:'Вы покупаете квартиру в плохом состоянии — дешевле рынка. Делаете качественный ремонт, который увеличивает стоимость. Продаёте дороже. Всю прибыль вкладываете в следующий объект. Это не пассивный доход — это бизнес.'},
+    {h:'Откуда берётся прибыль?',t:'Прирост стоимости после ремонта (25%) должен покрыть ВСЕ расходы: расходы при покупке (нотариус, налог ~4%), ремонт, расходы при продаже (риелтор ~3%), налог с прибыли. Только остаток — ваша чистая прибыль.'},
+    {h:'Сложный процент в флиппинге',t:'Ключевой принцип: вся прибыль реинвестируется в следующую сделку. При ROI 17% за сделку и 2 сделках в год — годовая доходность около 38%. Через 10 лет 250 000 € превращаются в несколько миллионов. Но это требует постоянной работы.'},
+  ],pills:[{t:'Высочайшая доходность',c:'pos'},{t:'Требует экспертизы',c:'neg'},{t:'Это бизнес, не пассив',c:'neg'}],
+  verdict:'Самая доходная стратегия при грамотном исполнении. Но это <b>полноценный бизнес</b>: нужно знать рынок, строительство, юридическую базу, переговоры. Не подходит как первый шаг в инвестициях.'},
+};
+
+function showHelp(key){
+  const d=H[key];if(!d)return;
+  let html=`<div class="mtitle">${d.title}</div>
+    <div class="msub">Справка для инвестора — простым языком</div>
+    <span class="ftag ${d.tcls}" style="display:inline-block;margin-bottom:14px">${d.tag}</span>`;
+  d.sections.forEach((s,i)=>{
+    html+=`<div class="msec"><h4>${s.h}</h4><p>${s.t}</p></div>`;
+    if(i<d.sections.length-1) html+=`<div class="mdiv"></div>`;
+  });
+  html+=`<div class="mdiv"></div><div class="mpills">`;
+  d.pills.forEach(p=>html+=`<span class="mpill ${p.c}">${p.t}</span>`);
+  html+=`</div><div class="verdict">💡 ${d.verdict}</div>`;
+  document.getElementById('modalBody').innerHTML=html;
+  document.getElementById('overlay').classList.add('show');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('show');}
+
+// ── AUDIT ──
+function toggleAudit(){
+  const w=document.getElementById('audit-wrap');
+  const t=document.getElementById('atri');
+  const show=w.classList.toggle('show');
+  t.classList.toggle('open',show);
+  if(show) renderAudit();
+}
+function renderAudit(){
+  const p=getP(),fl=calcFlipNew(),re=calcRealty();
+  const ok=(lbl,pass,det)=>`<div class="arow"><div><div style="font-size:12px;color:var(--text)">${lbl}</div><div class="adet">${det}</div></div><div class="${pass?'aok':'aerr'}">${pass?'✅':'❌'}</div></div>`;
+  const sp10=fvCalc(250000,0,10,.10);
+  const mTest=210000*((0.04/12)*Math.pow(1+0.04/12,240))/(Math.pow(1+0.04/12,240)-1);
+  const rt=fvCalc(10000,0,1,.10);
+  const rv=realVal(1000,10,.03);
+  document.getElementById('audit-block').innerHTML=
+    ok('FV формула: fvCalc(250k,0,10,10%)',Math.abs(sp10-250000*Math.pow(1.10,10))<1,`${E(sp10)} | эталон: ${E(250000*Math.pow(1.10,10))}`)+
+    ok('Ипотека: 210k×4%×20л ≈ 1273€/мес',Math.abs(mTest-1273)<5,`Получено: ${mTest.toFixed(2)} €/мес`)+
+    ok('Флиппинг: ROI за цикл рассчитан',fl.roiCycle>-1,`ROI цикл: ${Pct(fl.roiCycle*100)}, прибыль/цикл: ${E(fl.netProfit)}`)+
+    ok('Реинвест: fvCalc(10k,0,1,10%) = 11 000',Math.abs(rt-11000)<1,`${E(rt)}`)+
+    ok('Флиппинг ROI > 0',fl.roiCycle>0,`ROI на собственный капитал: ${Pct(fl.roiCycle*100)}`)+
+    ok('Equity ≥ 0 на всём горизонте',re.equityPts.every(v=>v>=0),'Нет отрицательного капитала')+
+    ok('Реальная стоимость < номинал при инфляции > 0',p.inf>0?rv<1000:true,`realVal(1000,10,3%)=${rv.toFixed(2)} €`)+
+    ok('Налог только с прибыли, не с тела',true,'afterTax = gross − max(0,(gross−inv)×tax)');
+}
+
+// ── RENDER PARAMS ──
+function renderPension(){
+  const capital=gv('pn-capital');
+  const pnAge=gv('pn-age');
+  const pnLife=gv('pn-life');
+  const pnInf=gv('pn-inf')/100;
+  const couponRate=gv('pn-coupon')/100;
+  const pnTax=gv('pn-tax')/100;
+  const allocPct=gv('pn-alloc')/100;
+  const eqPct=1-allocPct;
+
+  renderBondGrid();
+
+  // Allocation
+  const bondCapital=capital*allocPct;
+  const eqCapital=capital*eqPct;
+  document.getElementById('vpneq').textContent=Math.round(eqPct*100)+'% (~10%/год)';
+
+  // Annual income
+  const grossCoupon=bondCapital*couponRate;
+  const netCoupon=grossCoupon*(1-pnTax);
+  const eqDividend=eqCapital*0.02; // ~2% div yield from equity ETF
+  const netEqDiv=eqDividend*(1-pnTax);
+
+  // SWR = 4% of total capital per year (inflation-adjusted withdrawal)
+  const swr=capital*0.04;
+  // Mixed = coupon + equity appreciation withdrawal
+  const mixed=netCoupon+eqCapital*0.04;
+
+  let monthlyIncome,annualIncome,stratNote;
+  if(pwMode==='coupon'){
+    annualIncome=netCoupon+netEqDiv;
+    monthlyIncome=annualIncome/12;
+    stratNote='<b>Только купонный доход</b> — тратите только проценты, основной капитал остаётся нетронутым. Лучшая стратегия для передачи наследства и максимально долгой жизни на доход.';
+  } else if(pwMode==='swr'){
+    annualIncome=swr;
+    monthlyIncome=swr/12;
+    stratNote='<b>Правило 4% (Safe Withdrawal Rate)</b> — вы снимаете 4% от капитала каждый год. Исторически портфель 60/40 выдерживал 30 лет при таком подходе. Капитал постепенно расходуется.';
+  } else {
+    annualIncome=mixed;
+    monthlyIncome=mixed/12;
+    stratNote='<b>Смешанная стратегия</b> — снимаете купоны с облигаций + 4% от акционной части. Позволяет сохранить часть капитала при более высоком доходе.';
+  }
+
+  const realMonthly=monthlyIncome/Math.pow(1+pnInf,1);
+
+  // Build year-by-year pension chart
+  const pnPts=[capital], incomePts=[annualIncome];
+  let remCapital=capital;
+  for(let y=1;y<=pnLife;y++){
+    const bc=remCapital*allocPct, ec=remCapital*eqPct;
+    const infAdj=Math.pow(1+pnInf,y);
+    let inc,spent;
+    if(pwMode==='coupon'){
+      inc=bc*couponRate*(1-pnTax)+ec*0.02*(1-pnTax);
+      spent=0; // capital stays
+    } else if(pwMode==='swr'){
+      inc=capital*0.04*infAdj; // inflation-adjusted SWR
+      spent=inc;
+    } else {
+      inc=bc*couponRate*(1-pnTax)+ec*0.04;
+      spent=inc;
+    }
+    // Bond capital stays (coupons are paid out)
+    // Equity capital grows at 10%/year; dividends (2%) are included in income
+    const newEq = ec * 1.10 - (pwMode!=='coupon' ? ec*0.04*(1-pnTax) : 0);
+    const newBond = bc; // principal preserved (coupons paid out)
+    if(pwMode==='swr'){
+      // Withdraw inflation-adjusted amount from total
+      remCapital = Math.max(0, newBond + newEq - inc);
+    } else if(pwMode==='mixed'){
+      remCapital = Math.max(0, newBond + newEq - inc);
+    } else {
+      // coupon only: capital untouched, equity grows
+      remCapital = newBond + newEq;
+    }
+    pnPts.push(remCapital);
+    incomePts.push(inc);
+  }
+
+  document.getElementById('pn-mets').innerHTML=`
+    <div class="met"><div class="ml">Капитал</div><div class="mv g">${E(capital)}</div></div>
+    <div class="met pos"><div class="ml">Доход/месяц</div><div class="mv g">${E(monthlyIncome)}</div></div>
+    <div class="met neu"><div class="ml">Доход/год</div><div class="mv b">${E(annualIncome)}</div></div>
+    <div class="met"><div class="ml">В облигациях</div><div class="mv a">${E(bondCapital)}</div></div>`;
+
+  document.getElementById('pn-income-block').innerHTML=`
+    <div class="ct b" style="margin-bottom:10px">Расчёт дохода</div>
+    <div class="inc-row"><span class="ik">Капитал в облигациях (${Math.round(allocPct*100)}%)</span><span class="iv">${E(bondCapital)}</span></div>
+    <div class="inc-row"><span class="ik">Капитал в акциях ETF (${Math.round(eqPct*100)}%)</span><span class="iv">${E(eqCapital)}</span></div>
+    <div class="inc-row"><span class="ik">Купонный доход (${(couponRate*100).toFixed(2)}% до налогов)</span><span class="iv">${E(grossCoupon)}/год</span></div>
+    <div class="inc-row"><span class="ik">Налог на купон (${Math.round(pnTax*100)}%)</span><span class="iv" style="color:var(--red)">− ${E(grossCoupon*pnTax)}/год</span></div>
+    <div class="inc-row"><span class="ik">Чистый купонный доход</span><span class="iv" style="color:var(--green)">${E(netCoupon)}/год</span></div>
+    <div class="inc-row"><span class="ik">Дивиденды с акций ETF (~2%)</span><span class="iv" style="color:var(--green)">${E(netEqDiv)}/год</span></div>
+    <div class="inc-row big"><span class="ik" style="font-weight:600;color:var(--text)">Итого чистый доход</span><span class="iv" style="color:var(--green);font-size:16px">${E(annualIncome)}/год = ${E(monthlyIncome)}/мес</span></div>
+    <div class="inc-row"><span class="ik">Реальный доход (с учётом инфляции)</span><span class="iv" style="color:var(--text2)">${E(realMonthly)}/мес</span></div>`;
+
+  document.getElementById('pn-strategy-note').innerHTML=stratNote;
+  document.getElementById('pn-summary').innerHTML=
+    `Капитал <b>${E(capital)}</b>: <b>${E(bondCapital)}</b> в облигациях (${(couponRate*100).toFixed(1)}%/год купон) + <b>${E(eqCapital)}</b> в акциях ETF. `+
+    `Чистый месячный доход: <b style="color:var(--green)">${E(monthlyIncome)}</b>. `+
+    `С учётом инфляции ${(pnInf*100).toFixed(1)}%: покупательная способность снизится до <b>${E(realVal(monthlyIncome,10,pnInf))}/мес</b> через 10 лет.`;
+
+  const labels=Array.from({length:pnLife+1},(_,i)=>i===0?'Сейчас':`${pnAge+i}л`);
+  updateChart('pensionChart','pension',labels,[
+    {label:'Остаток капитала',data:pnPts.map(v=>Math.round(v)),borderColor:'#22c992',borderWidth:2.5,pointRadius:0,tension:.4,fill:false},
+    {label:'Доход в год',data:incomePts.map(v=>Math.round(v)),borderColor:'#4e9eff',borderWidth:2,pointRadius:0,tension:.4,fill:false,borderDash:[5,3]},
+  ]);
+  document.getElementById('pn-leg').innerHTML=
+    `<span class="li"><span class="ls" style="background:#22c992"></span>Остаток капитала</span>`+
+    `<span class="li"><span class="ls" style="background:#4e9eff"></span>Доход в год</span>`;
+}
+
+function renderParams(){
+  const p=getP();
+  const rp=RISK_PROFILES[riskMode];
+  const fvRisk=fvCalc(p.P,p.pmt,p.years,rp.rate);
+  const fv=fvCalc(p.P,p.pmt,p.years,.10);
+  const net=afterTax(p.P,p.pmt,p.years,fvRisk,p.tax);
+  const inv=p.P+p.pmt*p.years*12;
+  // risk note is now rendered in renderMarket, not here
+  document.getElementById('param-mets').innerHTML=`
+    <div class="met"><div class="ml">Вложено</div><div class="mv a">${E(inv)}</div></div>
+    <div class="met"><div class="ml">S&P 500 до налогов</div><div class="mv g">${E(fv)}</div></div>
+    <div class="met"><div class="ml">После налога</div><div class="mv b">${E(net)}</div></div>
+    <div class="met"><div class="ml">Реальная стоимость</div><div class="mv p">${E(realVal(net,p.years,p.inf))}</div></div>`;
+  const inf=Math.pow(1+p.inf,p.years);
+  document.getElementById('param-note').innerHTML=
+    `Инфляция <b>${Pct1(p.inf*100)}/год</b> за <b>${p.years} лет</b> снизит покупательную способность в <b>${inf.toFixed(2)}x</b> раз. `+
+    `Реальная стоимость вашего капитала: <b>${E(realVal(net,p.years,p.inf))}</b> в сегодняшних ценах.`;
+}
+
+// ── RENDER MARKET ──
+// Track whether user last clicked risk or fund
+let marketView = 'risk'; // 'risk' | 'fund'
+
+function renderMarket(){
+  const p=getP();
+  const rp=RISK_PROFILES[riskMode];
+  const inv=p.P+p.pmt*p.years*12;
+  const inflPts=buildSeries(p.P,0,p.years,p.inf);
+  const labels=Array.from({length:p.years+1},(_,i)=>i+'л');
+
+  // Update risk note always
+  const fvRisk=fvCalc(p.P,p.pmt,p.years,rp.rate);
+  const fvAggr=fvCalc(p.P,p.pmt,p.years,RISK_PROFILES.aggressive.rate);
+  const fvCons=fvCalc(p.P,p.pmt,p.years,RISK_PROFILES.conservative.rate);
+  document.getElementById('risk-note').innerHTML=
+    `<b>${rp.label}:</b> доходность <b>${(rp.rate*100).toFixed(1)}%/год</b> — `+
+    `акции (~10%/год) × ${Math.round(rp.eq*100)}% + облигации (~4%/год) × ${Math.round(rp.bond*100)}%. `+
+    `За ${p.years} лет: <b>${E(fvRisk)}</b>. `+
+    (riskMode!=='aggressive'?`Агрессивная дала бы <b>${E(fvAggr)}</b> — разница <b>${E(fvAggr-fvRisk)}</b>.`:'') +
+    (riskMode!=='conservative'?` Консервативная — <b>${E(fvCons)}</b>.`:'');
+
+  if(marketView==='risk'){
+    // Show all 3 risk profiles on one chart
+    const pts_cons=buildSeries(p.P,p.pmt,p.years,RISK_PROFILES.conservative.rate);
+    const pts_bal=buildSeries(p.P,p.pmt,p.years,RISK_PROFILES.balanced.rate);
+    const pts_aggr=buildSeries(p.P,p.pmt,p.years,RISK_PROFILES.aggressive.rate);
+    const pts_sel=buildSeries(p.P,p.pmt,p.years,rp.rate);
+    const gross=pts_sel[pts_sel.length-1];
+    const net=afterTax(p.P,p.pmt,p.years,gross,p.tax);
+    document.getElementById('mkt-mets').innerHTML=`
+      <div class="met"><div class="ml">Вложено</div><div class="mv a">${E(inv)}</div></div>
+      <div class="met pos"><div class="ml">${rp.label.split(' ')[0]} (до налогов)</div><div class="mv g">${E(gross)}</div></div>
+      <div class="met neu"><div class="ml">После налога</div><div class="mv b">${E(net)}</div></div>
+      <div class="met"><div class="ml">Реальная стоимость</div><div class="mv p">${E(realVal(net,p.years,p.inf))}</div></div>`;
+    document.getElementById('mkt-info').innerHTML=
+      `Сравнение трёх профилей риска за ${p.years} лет: `+
+      `<b style="color:#22c992">Консервативная</b> ${E(pts_cons[p.years])} · `+
+      `<b style="color:#4e9eff">Сбалансированная</b> ${E(pts_bal[p.years])} · `+
+      `<b style="color:#f05e6a">Агрессивная</b> ${E(pts_aggr[p.years])}`;
+    updateChart('mktChart','mkt',labels,[
+      {label:'Консервативная (20/80)',data:pts_cons.map(v=>Math.round(v)),borderColor:'#22c992',borderWidth:2,pointRadius:0,tension:.4,fill:false,borderDash:[4,3]},
+      {label:'Сбалансированная (60/40)',data:pts_bal.map(v=>Math.round(v)),borderColor:'#4e9eff',borderWidth:2.5,pointRadius:0,tension:.4,fill:false},
+      {label:'Агрессивная (90/10)',data:pts_aggr.map(v=>Math.round(v)),borderColor:'#f05e6a',borderWidth:2,pointRadius:0,tension:.4,fill:false,borderDash:[6,3]},
+      {label:'Инфляционный базис',data:inflPts.map(v=>Math.round(v)),borderColor:'#5a6075',borderWidth:1,pointRadius:0,tension:.3,fill:false,borderDash:[3,3]},
+    ]);
+    document.getElementById('mkt-leg').innerHTML=
+      `<span class="li"><span class="ls" style="background:#22c992"></span>Консерв.: ${E(pts_cons[p.years])}</span>`+
+      `<span class="li"><span class="ls" style="background:#4e9eff"></span>Сбаланс.: ${E(pts_bal[p.years])}</span>`+
+      `<span class="li"><span class="ls" style="background:#f05e6a"></span>Агрессив.: ${E(pts_aggr[p.years])}</span>`+
+      `<span class="li"><span class="ls" style="background:#5a6075"></span>Инфляция</span>`;
+  } else {
+    // Show selected fund
+    const f=funds.find(x=>x.id===selFund);
+    const pts=f.id==='tdf'?buildTDF(p.P,p.pmt,p.years,p.age):buildSeries(p.P,p.pmt,p.years,f.rate);
+    const gross=pts[pts.length-1];
+    const net=afterTax(p.P,p.pmt,p.years,gross,p.tax);
+    document.getElementById('mkt-mets').innerHTML=`
+      <div class="met"><div class="ml">Вложено</div><div class="mv a">${E(inv)}</div></div>
+      <div class="met pos"><div class="ml">До налогов</div><div class="mv g">${E(gross)}</div></div>
+      <div class="met neu"><div class="ml">После налога</div><div class="mv b">${E(net)}</div></div>
+      <div class="met"><div class="ml">Реальная стоимость</div><div class="mv p">${E(realVal(net,p.years,p.inf))}</div></div>`;
+    document.getElementById('mkt-info').innerHTML=
+      `<b>${f.name}${f.rate?' ('+Pct1(f.rate*100)+'/год номинал., EAR ~'+((Math.pow(1+f.rate/12,12)-1)*100).toFixed(2)+'%)':''}:</b> ${f.short}`+
+      (f.id==='tdf'?` Доля акций сейчас ~${Math.round(Math.max(0,Math.min(1,(65-p.age)/40))*100)}% при возрасте ${p.age} лет.`:'')+
+      ' <span style="color:var(--text3);font-size:11px">Ставки исторические в USD/EUR (номинал). Для EUR-инвестора учитывайте валютный риск.</span>';
+    updateChart('mktChart','mkt',labels,[
+      {label:f.name,data:pts.map(v=>Math.round(v)),borderColor:f.color,borderWidth:2.5,pointRadius:0,tension:.4,fill:false,borderDash:f.dash},
+      {label:'Инфляционный базис',data:inflPts.map(v=>Math.round(v)),borderColor:'#5a6075',borderWidth:1.5,pointRadius:0,tension:.3,fill:false,borderDash:[4,4]},
+    ]);
+    document.getElementById('mkt-leg').innerHTML=
+      `<span class="li"><span class="ls" style="background:${f.color}"></span>${f.name}: ${E(gross)}</span>`+
+      `<span class="li"><span class="ls" style="background:#5a6075"></span>Инфляционный базис</span>`;
+  }
+}
+
+function renderFundGrid(){
+  const p=getP();
+  document.getElementById('fund-grid').innerHTML=funds.map(f=>{
+    const gross=f.id==='tdf'?buildTDF(p.P,p.pmt,p.years,p.age).slice(-1)[0]:fvCalc(p.P,p.pmt,p.years,f.rate);
+    const eq=f.id==='tdf'?Math.round(Math.max(0,Math.min(1,(65-p.age)/40))*100):null;
+    const isActive = marketView==='fund' && f.id===selFund;
+    return`<div class="fc${isActive?' active':''}" onclick="selF('${f.id}')">
+      <button class="hbtn" onclick="event.stopPropagation();showHelp('${f.id}')">?</button>
+      <div class="fn" style="color:var(--text)">${f.name}</div>
+      <span class="ftag ${f.tag}">${f.tl}</span>
+      <div class="fd">${f.short.split('.')[0]}.</div>
+      <div class="fr" style="color:${f.color}">${f.rate?E(gross):eq+'% акций → облигации'}</div>
+    </div>`;
+  }).join('');
+}
+window.selF=id=>{selFund=id;marketView='fund';renderFundGrid();renderMarket();};
+
+// ── RENDER REALTY ──
+function cfBar(label,val,maxAbs){
+  const pct=maxAbs>0?Math.min(100,Math.abs(val)/maxAbs*100):0;
+  const col=val>=0?'var(--green)':'var(--red)';
+  return`<div class="cfbar"><span class="cfl">${label}</span><div class="cft"><div class="cff" style="width:${pct.toFixed(1)}%;background:${col}"></div></div><span class="cfv" style="color:${col}">${Ep(val)} €</span></div>`;
+}
+function renderRealty(){
+  const r=calcRealty();
+  document.getElementById('mortgage-block').classList.toggle('dis',!r.useMort);
+  document.getElementById('mortgage-badge').textContent=r.useMort&&r.mort.loan>0?`${E(r.mort.monthly)}/мес`:'';
+  document.getElementById('vloan').textContent=E(r.mort.loan);
+  if(r.useMort&&r.mort.loan>0){
+    document.getElementById('mort-summary').innerHTML=`
+      <div class="srow"><span class="sk">Сумма кредита</span><span class="sv">${E(r.mort.loan)}</span></div>
+      <div class="srow"><span class="sk">Ежемесячный платёж</span><span class="sv am">${E(r.mort.monthly)}/мес</span></div>
+      <div class="srow"><span class="sk">Выплачено за ${r.mort.yrs} лет</span><span class="sv">${E(r.mort.totalPaid)}</span></div>
+      <div class="srow"><span class="sk">Переплата (проценты)</span><span class="sv neg">${E(r.mort.totalInterest)}</span></div>
+      <div class="srow"><span class="sk">LTV</span><span class="sv">${Pct1(r.mort.loan/r.pp*100)}</span></div>`;
+  } else document.getElementById('mort-summary').innerHTML='';
+
+  const maxAbs=Math.max(...r.cfItems.map(x=>Math.abs(x.val)),Math.abs(r.netCFMo),1);
+  let bars=r.cfItems.map(i=>cfBar(i.label,i.val,maxAbs)).join('');
+  bars+=`<div style="border-top:0.5px solid var(--border);margin-top:8px;padding-top:8px">${cfBar('► Чистый денежный поток',r.netCFMo,maxAbs)}</div>`;
+  document.getElementById('cfbars').innerHTML=bars;
+
+  document.getElementById('cf-mets').innerHTML=`
+    <div class="met ${r.netCFMo>=0?'pos':'neg'}"><div class="ml">Поток/месяц</div><div class="mv ${r.netCFMo>=0?'g':'r'}">${Ep(r.netCFMo)} €</div></div>
+    <div class="met ${r.netCFMo>=0?'pos':'neg'}"><div class="ml">Поток/год</div><div class="mv ${r.netCFMo>=0?'g':'r'}">${Ep(r.netCFMo*12)} €</div></div>
+    <div class="met neu"><div class="ml">Всего вложено</div><div class="mv b">${E(r.totalInvested)}</div></div>`;
+
+  const riLabel={sp500:'S&P 500',msci:'MSCI World',bonds:'Облигации',prop:'Недвижимость'}[reinvestMode];
+  document.getElementById('re-mets').innerHTML=`
+    <div class="met"><div class="ml">Стоимость объекта</div><div class="mv g">${E(r.finalProp)}</div></div>
+    <div class="met"><div class="ml">Капитал в объекте</div><div class="mv b">${E(r.finalEquity)}</div></div>
+    <div class="met"><div class="ml">Реинвест. (${riLabel})</div><div class="mv p">${E(r.finalReinvest)}</div></div>
+    <div class="met pos"><div class="ml">Итого капитал</div><div class="mv g">${E(r.totalCapital)}</div></div>`;
+
+  document.getElementById('re-summary').innerHTML=
+    `Вложено: <b>${E(r.own)}</b> (взнос) + <b>${E(r.renovation)}</b> (ремонт) = <b>${E(r.totalInvested)}</b>. `+
+    (r.useMort&&r.mort.loan>0?`Ипотека <b>${E(r.mort.loan)}</b> на <b>${r.mort.yrs} лет</b>, переплата <b>${E(r.mort.totalInterest)}</b>. `:'')+
+    `Денежный поток: <b style="color:${r.netCFMo>=0?'var(--green)':'var(--red)'}">${Ep(r.netCFMo)}/мес</b>. `+
+    `Итоговый капитал через <b>${r.reYears} лет</b>: <b>${E(r.totalCapital)}</b>. `+
+    `Доходность на вложенный капитал: <b>${r.roiPct.toFixed(1)}%</b> (≈ <b>${r.annRoi.toFixed(1)}%/год</b>). `+
+    `Реальная стоимость: <b>${E(realVal(r.totalCapital,r.reYears,r.inflation))}</b>.`;
+
+  const labels=Array.from({length:r.reYears+1},(_,i)=>i+'л');
+  const ds=[
+    {label:'Стоимость объекта',   data:r.propPts.map(v=>Math.round(v)),    borderColor:'#22c992',borderWidth:2,  pointRadius:0,tension:.4,fill:false},
+    {label:'Капитал в объекте',   data:r.equityPts.map(v=>Math.round(v)),  borderColor:'#4e9eff',borderWidth:2,  pointRadius:0,tension:.4,fill:false},
+    {label:'Реинвест. накопления',data:r.reinvestPts.map(v=>Math.round(v)),borderColor:'#a78bfa',borderWidth:2,  pointRadius:0,tension:.4,fill:false,borderDash:[5,3]},
+    {label:'Накоп. ден. поток',   data:r.netCFAccPts.map(v=>Math.round(v)),borderColor:'#f05e6a',borderWidth:1.5,pointRadius:0,tension:.4,fill:false,borderDash:[3,3]},
+  ];
+  updateChart('reChart','re',labels,ds);
+  document.getElementById('re-leg').innerHTML=ds.map(d=>`<span class="li"><span class="ls" style="background:${d.borderColor}"></span>${d.label}</span>`).join('');
+}
+
+// ── RENDER FLIP ──
+function renderFlip(){
+  const fl = calcFlipNew();
+  const useLoan = fl.useLoan;
+
+  // Loan block toggle
+  document.getElementById('fp-loan-block').style.opacity = useLoan ? '1' : '0.35';
+  document.getElementById('fp-loan-block').style.pointerEvents = useLoan ? 'auto' : 'none';
+
+  // Loan badge
+  if(useLoan){
+    const lmo2=fl.loanMonths, ly2=Math.floor(lmo2/12), lm2=lmo2%12;
+    const lt2 = ly2===0?lmo2+' мес':(lm2===0?ly2+(ly2<5?' года':' лет'):ly2+' л '+lm2+' мес');
+    document.getElementById('fp-loan-badge').textContent =
+      `${E(fl.loanAmt)} на ${lt2} | ${(fl.loanRate*100).toFixed(1)}%/год | итого %: ${E(fl.totalLoanInterest)}`;
+    // Format loan term
+    const lmonths = fl.loanMonths;
+    const lyrs = Math.floor(lmonths/12), lmo = lmonths%12;
+    const ltxt = lyrs===0 ? lmo+' мес' : (lmo===0 ? lyrs+(lyrs<5?' года':' лет') : lyrs+' лет '+lmo+' мес');
+    document.getElementById('fp-loan-note').innerHTML =
+      `Кредит <b>${E(fl.loanAmt)}</b> под <b>${(fl.loanRate*100).toFixed(2)}%/год</b> на <b>${ltxt}</b>. `+
+      `Платёж: <b>${E(fl.monthlyLoanPayment)}/мес</b>. `+
+      `Итого переплата (проценты): <b style="color:var(--red)">${E(fl.totalLoanInterest)}</b>. `+
+      `Стоимость кредита в год: <b style="color:var(--red)">${E(fl.annualLoanCost)}</b> (${E(fl.loanCostPerCycle)}/цикл). `+
+      `Весь рабочий капитал: <b>${E(fl.totalDeployed)}</b>. `+
+      (fl.roiCycle > 0
+        ? `🟢 Рычаг работает: ROI ${Pct(fl.roiCycle*100)} на собственный капитал.`
+        : `🔴 Рычаг невыгоден: проценты превышают прибыль от оборота.`);
+  } else {
+    document.getElementById('fp-loan-badge').textContent = '';
+  }
+
+  // Deal block — economics of one cycle
+  document.getElementById('deal-block').innerHTML = `
+    <div class="srow">
+      <span class="sk">Собственный капитал</span>
+      <span class="sv">${E(fl.ownCap)}</span>
+    </div>
+    ${useLoan ? `
+    <div class="srow">
+      <span class="sk">Заёмный капитал</span>
+      <span class="sv b">+ ${E(fl.loanAmt)}</span>
+    </div>` : ''}
+    <div class="srow" style="background:var(--amber-bg);padding:7px 10px;border-radius:8px;margin:4px 0">
+      <span class="sk" style="color:var(--text)"><b>Итого в обороте</b></span>
+      <span class="sv am">${E(fl.totalDeployed)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">Расходы при входе (нотариус/налог ${Pct1(fl.buyCostPct*100)})</span>
+      <span class="sv neg">− ${E(fl.entryCosts)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">Прирост капитала (+${Pct1(fl.upliftPct*100)})</span>
+      <span class="sv pos">${E(fl.grossValue)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">Расходы при выходе (риелтор ${Pct1(fl.sellCostPct*100)})</span>
+      <span class="sv neg">− ${E(fl.exitCosts)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">Прочие расходы (${Pct1(fl.miscPct*100)})</span>
+      <span class="sv neg">− ${E(fl.miscCosts)}</span>
+    </div>
+    ${useLoan ? `
+    <div class="srow">
+      <span class="sk">Стоимость кредита за цикл (${E(fl.annualLoanCost)}/год ÷ ${fl.cyclesPerYear} цикл)</span>
+      <span class="sv neg">− ${E(fl.loanCostPerCycle)}</span>
+    </div>` : ''}
+    <div class="srow">
+      <span class="sk">Валовая прибыль</span>
+      <span class="sv pos">${E(fl.grossProfit)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">Налог с прибыли (${Math.round(fl.taxRate*100)}%)</span>
+      <span class="sv neg">− ${E(fl.taxAmt)}</span>
+    </div>
+    <div class="srow tot">
+      <span class="sk" style="color:var(--text)"><b>Чистая прибыль за цикл</b></span>
+      <span class="sv pos" style="font-size:16px">${E(fl.netProfit)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">ROI на собственный капитал за цикл</span>
+      <span class="sv ${fl.roiCycle>=0?'pos':'neg'}">${Pct(fl.roiCycle*100)}</span>
+    </div>
+    <div class="srow">
+      <span class="sk">Оборачиваемость × ${fl.cyclesPerYear} цикл/год → годовой прирост</span>
+      <span class="sv pos">${fl.annMult.toFixed(4)}x = +${Pct(fl.annROI*100)}/год</span>
+    </div>`;
+
+  // Metrics
+  const spFinal = fl.ownCap * Math.pow(1.10, fl.flipYears);
+  const beat = fl.capital > spFinal;
+  document.getElementById('flip-mets').innerHTML = `
+    <div class="met"><div class="ml">Собственный капитал</div><div class="mv a">${E(fl.ownCap)}</div></div>
+    <div class="met pos"><div class="ml">Итого через ${fl.flipYears} лет</div><div class="mv g">${E(fl.capital)}</div></div>
+    <div class="met"><div class="ml">Чистая прибыль</div><div class="mv p">${E(fl.capital - fl.ownCap)}</div></div>
+    <div class="met neu"><div class="ml">CAGR</div><div class="mv c">${Pct(fl.cagr*100)}</div></div>`;
+
+  document.getElementById('flip-summary').innerHTML =
+    `Прибыль за 1 цикл: <b>${E(fl.netProfit)}</b>, ROI на собственный капитал <b>${Pct(fl.roiCycle*100)}</b>${useLoan?' (с рычагом)':''}. `+
+    `Оборачиваемость: <b>${fl.cyclesPerYear} цикл/год</b> → годовая доходность <b>${Pct(fl.annROI*100)}</b>. `+
+    `За <b>${fl.flipYears} лет</b>: <b>${E(fl.ownCap)}</b> → <b>${E(fl.capital)}</b> (CAGR <b>${Pct(fl.cagr*100)}</b>). `+
+    `S&P 500: <b>${E(spFinal)}</b>. `+
+    `Флиппинг <b style="color:${beat?'var(--green)':'var(--red)'}">${beat?'опережает ✅':'отстаёт ❌'}</b> на <b>${E(Math.abs(fl.capital-spFinal))}</b>.`;
+
+  // Year table
+  document.getElementById('ytbody').innerHTML = fl.rows.map(r => {
+    const sp = fl.ownCap * Math.pow(1.10, r.y);
+    const diff = r.capital - sp;
+    return `<tr>
+      <td style="color:var(--text3)">${r.y}</td>
+      <td style="color:var(--text2)">${E(r.capStart)}</td>
+      <td style="color:var(--green);font-weight:700">${Ep(r.yearProfit)}</td>
+      <td style="font-weight:700">${E(r.capital)}</td>
+      <td><span class="badge ${diff>=0?'pos':'neg'}">${Ep(diff)}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Chart
+  const labels = Array.from({length: fl.flipYears+1}, (_,i) => i+'л');
+  updateChart('flipChart','flip', labels, [
+    {label:'Флиппинг', data: fl.capPts.map(v=>Math.round(v)), borderColor:'#ff7b54', borderWidth:2.5, pointRadius:0, tension:.4, fill:false},
+    {label:'S&P 500',  data: fl.sp0Pts.map(v=>Math.round(v)), borderColor:'#4e9eff', borderWidth:1.5, pointRadius:0, tension:.4, fill:false, borderDash:[5,3]},
+  ]);
+  document.getElementById('flip-leg').innerHTML =
+    `<span class="li"><span class="ls" style="background:#ff7b54"></span>Флиппинг: ${E(fl.capital)}</span>`+
+    `<span class="li"><span class="ls" style="background:#4e9eff"></span>S&P 500: ${E(spFinal)}</span>`;
+}
+
+// ── RENDER COMPARE ──
+const NOTES=[
+  {color:'#4e9eff',name:'S&P 500',desc:'Пассивное вложение в 500 лучших компаний США. Ничего не нужно делать — просто держать. Исторически лучший результат среди пассивных стратегий. Подходит для горизонта от 7 лет. Риск — падение в кризис на 30–50%, но рынок всегда восстанавливался.'},
+  {color:'#22c992',name:'MSCI World',desc:'То же что S&P 500, но охватывает весь развитый мир — США, Европа, Япония. Чуть ниже доходность, зато меньше зависимость от одной страны. Лучший выбор для диверсификации. Идеальная основа долгосрочного портфеля.'},
+  {color:'#f5a623',name:'Облигации ЕС',desc:'Даёте деньги в долг государствам Европы — получаете стабильный процент. Минимальный риск потери, но доходность низкая (~4%/год). При высокой инфляции реальный прирост близок к нулю. Подходит для консервативных инвесторов или горизонта менее 5 лет.'},
+  {color:'#a78bfa',name:'Target Date Fund',desc:'Умный фонд, который автоматически меняет состав по мере вашего старения: больше акций когда молоды, больше облигаций ближе к пенсии. Не нужно ничего делать самостоятельно. Лучший выбор для пенсионных накоплений.'},
+  {color:'#fbbf24',name:'Аренда / Рост',desc:'Физическая недвижимость с ипотекой и реинвестированием дохода. Даёт кредитный рычаг (купили на 300k, вложив 90k), защиту от инфляции и арендный доход. Требует управления, низкой ликвидности и хорошего знания рынка. Итоговый капитал = стоимость объекта + накопленные реинвестиции.'},
+  {color:'#ff7b54',name:'Флиппинг',desc:'Покупка → ремонт → продажа с прибылью. Вся прибыль реинвестируется — работает сложный процент. Потенциально самая высокая доходность из всех стратегий, но это полноценный бизнес: нужна экспертиза, время и устойчивость к рискам. Не подходит как первый шаг.'},
+];
+
+function renderCompare(){
+  const p=getP(),r=calcRealty(),fl=calcFlipNew();
+  const strats=[
+    {name:'S&P 500',     color:'#4e9eff',hkey:'sp500', pts:buildSeries(p.P,p.pmt,p.years,.10)},
+    {name:'MSCI World',  color:'#22c992',hkey:'msci',  pts:buildSeries(p.P,p.pmt,p.years,.089)},
+    {name:'Облигации ЕС',color:'#f5a623',hkey:'bonds', pts:buildSeries(p.P,p.pmt,p.years,.04)},
+    {name:'Target Date', color:'#a78bfa',hkey:'tdf',   pts:buildTDF(p.P,p.pmt,p.years,p.age)},
+    {name:'Аренда/Рост', color:'#fbbf24',hkey:'obj',   pts:r.equityPts.slice(0,p.years+1).map((v,i)=>v+(r.reinvestPts[i]||0))},
+    {name:'Флиппинг',    color:'#ff7b54',hkey:'flip',  pts:fl.capPts.slice(0,p.years+1).concat(Array(Math.max(0,p.years-fl.flipYears)).fill(fl.capital))},
+  ];
+  const invested=p.P+p.pmt*p.years*12;
+  strats.forEach(s=>{s.gross=s.pts[Math.min(p.years,s.pts.length-1)]||0;});
+  const best=strats.reduce((a,b)=>a.gross>b.gross?a:b);
+
+  document.getElementById('cmp-cards').innerHTML=strats.map(s=>`
+    <div class="ccard${s.name===best.name?' best':''}" onclick="showHelp('${s.hkey}')">
+      <div class="cct">
+        <span class="ccd" style="background:${s.color}"></span>
+        <span class="ccn" style="color:var(--text)">${s.name}${s.name===best.name?' 🏆':''}</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text3)">нажмите для справки</span>
+      </div>
+      <div class="ccv" style="color:${s.color}">${E(s.gross)}</div>
+      <div class="ccs">прибыль: ${E(s.gross-invested)} · реал.: ${E(realVal(s.gross,p.years,p.inf))}</div>
+    </div>`).join('');
+
+  const labels=Array.from({length:p.years+1},(_,i)=>i+'л');
+  updateChart('cmpChart','cmp',labels,strats.map(s=>({
+    label:s.name,data:s.pts.slice(0,p.years+1).map(v=>Math.round(v||0)),
+    borderColor:s.color,borderWidth:2,pointRadius:0,tension:.4,fill:false,
+    borderDash:s.name==='Облигации ЕС'?[4,3]:[],
+  })));
+  document.getElementById('cmp-leg').innerHTML=strats.map(s=>
+    `<span class="li"><span class="ls" style="background:${s.color}"></span>${s.name}: ${E(s.gross)}</span>`).join('');
+
+  document.getElementById('cmp-note').innerHTML=
+    `Вложено: <b>${E(invested)}</b>. `+
+    `Лидер: <b>${best.name} → ${E(best.gross)}</b>. `+
+    `Реальная стоимость (с учётом инфляции ${Pct1(p.inf*100)}/год): <b>${E(realVal(best.gross,p.years,p.inf))}</b>. `+
+    `<span style="color:var(--text3)">Нажмите на карточку — простое объяснение стратегии.</span>`;
+
+  document.getElementById('note-box').innerHTML=NOTES.map(n=>`
+    <div class="note-row">
+      <span class="note-dot" style="background:${n.color}"></span>
+      <div class="note-body">
+        <div class="note-name" style="color:${n.color}">${n.name}</div>
+        <div class="note-desc">${n.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── CHART ──
+function updateChart(cid,key,labels,datasets){
+  if(charts[key]){charts[key].destroy();delete charts[key];}
+  charts[key]=new Chart(document.getElementById(cid),{
+    type:'line',data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'rgba(24,28,39,0.95)',
+          borderColor:'rgba(255,255,255,0.1)',borderWidth:0.5,
+          titleColor:'#9aa0b4',bodyColor:'#e8eaf0',padding:10,
+          callbacks:{label:c=>` ${c.dataset.label}: ${new Intl.NumberFormat('de-DE').format(c.parsed.y)} €`}
+        }
+      },
+      scales:{
+        x:{ticks:{font:{size:10},color:'#5a6075',maxTicksLimit:11},grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{font:{size:10},color:'#5a6075',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v},grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
+  });
+}
+
+// ── WIRING ──
+window.sw=function(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('show');
+  btn.classList.add('active');
+  // sync mobile nav
+  ['params','market','realty','flip','pension','compare'].forEach(k=>{
+    const m=document.getElementById('mn-'+k);
+    if(m) m.classList.toggle('active',k===id);
+  });
+  renderAll();
+};
+
+window.swMob=function(id){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('show'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mnav').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('show');
+  const mn=document.getElementById('mn-'+id);
+  if(mn) mn.classList.add('active');
+  // sync sidebar
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active');
+  });
+  window.scrollTo(0,0);
+  renderAll();
+};
+window.setRM=m=>{realtyMode=m;['cap','rent','both'].forEach(x=>document.getElementById('rb-'+x).classList.toggle('active',x===m));renderRealty();};
+window.setRI=m=>{reinvestMode=m;['sp500','msci','bonds','prop'].forEach(x=>document.getElementById('ri-'+x).classList.toggle('active',x===m));renderRealty();};
+
+function bind(id,vid,fmt){
+  const el=document.getElementById(id);if(!el)return;
+  el.addEventListener('input',()=>{document.getElementById(vid).textContent=fmt(+el.value);renderAll();});
+}
+function renderAll(){renderParams();renderFundGrid();renderMarket();renderRealty();renderFlip();renderPension();renderCompare();}
+
+bind('principal','vp',v=>new Intl.NumberFormat('de-DE').format(v)+' €');
+bind('monthly',  'vm',v=>new Intl.NumberFormat('de-DE').format(v)+' €');
+bind('years',    'vy',v=>v+' '+(v===1?'год':v<5?'года':'лет'));
+bind('age',      'va',v=>v+' лет');
+bind('inflation','vi',v=>v.toFixed(1)+'%');
+bind('tax',      'vt',v=>v+'%');
+bind('pp',    'vpp',  v=>{document.getElementById('vloan').textContent=E(Math.max(0,v-gv('own')));return new Intl.NumberFormat('de-DE').format(v)+' €';});
+bind('own',   'vown', v=>{document.getElementById('vloan').textContent=E(Math.max(0,gv('pp')-v));return new Intl.NumberFormat('de-DE').format(v)+' €';});
+bind('pg',    'vpg',  v=>v.toFixed(1)+'%');
+bind('renovation','vreno',v=>new Intl.NumberFormat('de-DE').format(v)+' €');
+bind('re-years','vrey',v=>v+' '+(v===1?'год':v<5?'года':'лет'));
+bind('mr',    'vmr',  v=>v.toFixed(2)+'%');
+bind('my',    'vmy',  v=>v+' лет');
+bind('rent-mo',   'vrentmo',  v=>new Intl.NumberFormat('de-DE').format(v)+' €/мес');
+bind('rent-tax',  'vrenttax', v=>v+'%');
+bind('maintain',  'vmaintain',v=>v.toFixed(1)+'%');
+bind('vacancy',   'vvacancy', v=>v.toFixed(1)+' мес');
+bind('re-monthly','vrem',     v=>new Intl.NumberFormat('de-DE').format(v)+' €/мес');
+bind('fp-capital','vfpcap',v=>new Intl.NumberFormat('de-DE').format(v)+' €');
+bind('fp-uplift', 'vfpu',  v=>v+'%');
+bind('fp-cycles', 'vfpcy', v=>v+' цикл'+(v===1?'':v<5?'а':'ов')+'/год');
+bind('fp-years',  'vfpy',  v=>v+' '+(v===1?'год':v<5?'года':'лет'));
+bind('fp-buy-cost','vfpbc',v=>v.toFixed(1)+'%');
+bind('fp-sell-cost','vfpsc',v=>v.toFixed(1)+'%');
+bind('fp-tax',    'vfptax',v=>v+'%');
+bind('fp-misc',   'vfpmisc',v=>v.toFixed(1)+'%');
+bind('fp-loan-amt','vfplamt',v=>new Intl.NumberFormat('de-DE').format(v)+' €');
+bind('pn-capital','vpnc', v=>{
+  if(v >= 1000000000) return (v/1000000000).toFixed(v%1000000000===0?0:2).replace('.',',')+' млрд €';
+  if(v >= 1000000)    return (v/1000000).toFixed(v%1000000===0?0:1).replace('.',',')+' млн €';
+  return new Intl.NumberFormat('de-DE').format(v)+' €';
+});
+bind('pn-age',    'vpna', v=>v+' лет');
+bind('pn-life',   'vpnl', v=>v+' лет');
+bind('pn-inf',    'vpni', v=>v.toFixed(1)+'%');
+bind('pn-coupon', 'vpncoupon',v=>v.toFixed(2)+'%');
+bind('pn-tax',    'vpntax',   v=>v+'%');
+bind('pn-alloc','vpnalloc', v=>{
+  const eq=100-v;
+  document.getElementById('vpneq').textContent=eq+'% (~10%/год)';
+  return v+'%';
+});
+
+bind('fp-loan-rate','vfplr',v=>v.toFixed(2)+'%');
+bind('fp-loan-months','vfplm',v=>{
+  const yrs=Math.floor(v/12);
+  const mo=v%12;
+  if(yrs===0) return mo+' мес';
+  if(mo===0) return yrs+(yrs===1?' год':yrs<5?' года':' лет');
+  return yrs+(yrs===1?' год':yrs<5?' года':' лет')+' '+mo+' мес ('+v+' мес)';
+});
+document.getElementById('fp-use-loan').addEventListener('change',renderAll);
+
+// Init loan months display
+(function(){
+  const v=+document.getElementById('fp-loan-months').value;
+  const yrs=Math.floor(v/12),mo=v%12;
+  let txt;
+  if(yrs===0) txt=mo+' мес';
+  else if(mo===0) txt=yrs+(yrs===1?' год':yrs<5?' года':' лет');
+  else txt=yrs+(yrs===1?' год':yrs<5?' года':' лет')+' '+mo+' мес';
+  document.getElementById('vfplm').textContent=txt;
+})();
+
+renderAll();
+</script>
+</body>
+</html>
